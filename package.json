@@ -13,7 +13,7 @@
     "start": "electron-forge start",
     "test": "vitest run",
     "test:watch": "vitest",
-    "package": "electron-forge package",
+    "package": "electron-forge package && node tests/e2e/package-output.mjs",
     "test:e2e": "npm run package && node tests/e2e/electron-smoke.mjs"
   },
   "dependencies": {
@@ -29,5 +29,8 @@
     "playwright": "1.63.0",
     "vite": "8.2.2",
     "vitest": "5.0.1"
+  },
+  "overrides": {
+    "extract-zip": "npm:@electron-internal/extract-zip@1.0.3"
   }
 }
