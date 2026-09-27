@@ -45,6 +45,9 @@ jspm_packages/
 # Isolated Git worktrees
 .worktrees/
 
+# Electron Forge Vite output
+.vite/
+
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 
