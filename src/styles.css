@@ -87,11 +87,16 @@ body {
   color: var(--color-text);
   background-color: var(--color-bg);
   background-image: radial-gradient(
-    ellipse 860px 620px at 72% 18%,
-    #1a1a24 0%,
-    #17171f 26%,
-    #131319 52%,
-    #0f0f13 78%
+    ellipse 900px 700px at 70% 14%,
+    #1e1e2e 0%,
+    #181824 22%,
+    #131319 48%,
+    #0f0f13 72%
+  ),
+  radial-gradient(
+    ellipse 480px 380px at 12% 86%,
+    rgba(45, 212, 191, 0.04) 0%,
+    transparent 70%
   );
   background-attachment: fixed;
   font-family: var(--font-sans);
@@ -691,13 +696,18 @@ button:focus-visible {
   align-items: center;
   gap: 7px;
   font-weight: 400;
+  color: #ffffff;
 }
 
 /* ─── Empty + error states ────────────────────────────── */
 .empty-state {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: auto;
+  min-height: 40vh;
   gap: var(--space-3);
   color: var(--color-text-faint);
   font-size: var(--text-md);
@@ -785,6 +795,17 @@ button:focus-visible {
 /* ─── Timer / Resume Packet ───────────────────────────── */
 .resume-packet, .timer-view, .checkpoint-view, .break-view {
   max-width: 560px;
+}
+
+.timer-view {
+  background: rgba(26, 26, 32, 0.72);
+  border: 0.5px solid rgba(245, 245, 247, 0.08);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.36);
+  margin: auto;
 }
 
 .resume-packet h2, .timer-view h2, .checkpoint-view h2, .break-view h2 {
