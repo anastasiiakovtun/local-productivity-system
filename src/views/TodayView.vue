@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { PhCalendarBlank } from '@phosphor-icons/vue';
-import IconContainer from '../components/IconContainer.vue';
+import IconContainer from '../components/base/IconContainer.vue';
 import { useTaskStore } from '../stores/tasks.js';
 
 const taskStore = useTaskStore();

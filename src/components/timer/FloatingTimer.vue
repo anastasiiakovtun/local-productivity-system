@@ -1,27 +1,13 @@
 <script setup>
-import { computed } from 'vue';
 import { PhPause, PhPlay, PhArrowsIn } from '@phosphor-icons/vue';
-import { useSessionStore } from '../stores/session.js';
-import ProjectCover from './ProjectCover.vue';
+import { useSessionStore } from '../../stores/session.js';
+import { useTimerDisplay } from '../../composables/useTimerDisplay.js';
+import ProjectCover from '../base/ProjectCover.vue';
 
 defineEmits(['restore']);
 
 const session = useSessionStore();
-
-function pad(n) {
-  return String(Math.floor(Math.abs(n))).padStart(2, '0');
-}
-
-const displayTime = computed(() => {
-  if (session.timerState === 'overflow') {
-    const s = session.elapsedOverflow;
-    return `+${pad(s / 60)}:${pad(s % 60)}`;
-  }
-  const s = Math.max(0, session.secondsRemaining);
-  return `${pad(s / 60)}:${pad(s % 60)}`;
-});
-
-const isPaused = computed(() => session.timerState === 'paused');
+const { displayTime, isPaused } = useTimerDisplay(session);
 
 async function pause()  { await session.pauseSession(); }
 async function resume() { await session.resumeSession(); }

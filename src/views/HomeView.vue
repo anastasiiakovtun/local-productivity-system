@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { PhClockCounterClockwise, PhPlay, PhPlus } from '@phosphor-icons/vue';
-import IconContainer from '../components/IconContainer.vue';
-import ProjectCover from '../components/ProjectCover.vue';
+import IconContainer from '../components/base/IconContainer.vue';
+import ProjectCover from '../components/base/ProjectCover.vue';
 import { useHomeStore } from '../stores/home.js';
 import { useTaskStore } from '../stores/tasks.js';
 import { PROJECT_COVER_COLORS } from '../shared/app-schema.js';

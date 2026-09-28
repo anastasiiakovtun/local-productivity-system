@@ -2,7 +2,7 @@
 import { mount, flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import TimerModal from '../../src/components/TimerModal.vue';
+import TimerModal from '../../src/components/timer/TimerModal.vue';
 import { useSessionStore } from '../../src/stores/session.js';
 
 function makeSession(overrides = {}) {

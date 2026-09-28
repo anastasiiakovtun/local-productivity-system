@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue';
 import { useVaultStore } from './stores/vault.js';
-import AppSidebar from './components/AppSidebar.vue';
+import AppSidebar from './components/layout/AppSidebar.vue';
 import { useHomeStore } from './stores/home.js';
 import HomeView from './views/HomeView.vue';
 import InboxView from './views/InboxView.vue';

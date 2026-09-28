@@ -2,7 +2,7 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import FloatingTimer from '../../src/components/FloatingTimer.vue';
+import FloatingTimer from '../../src/components/timer/FloatingTimer.vue';
 import { useSessionStore } from '../../src/stores/session.js';
 
 function makeSession(overrides = {}) {

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import ProjectCover from '../../src/components/ProjectCover.vue';
+import ProjectCover from '../../src/components/base/ProjectCover.vue';
 
 const stubs = {
   PhFolderSimple: { template: '<svg data-icon="folder" />' },

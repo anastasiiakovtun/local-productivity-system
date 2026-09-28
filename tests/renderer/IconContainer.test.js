@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import IconContainer from '../../src/components/IconContainer.vue';
+import IconContainer from '../../src/components/base/IconContainer.vue';
 
 describe('IconContainer', () => {
   it('renders its slot inside a sized icon container', () => {
