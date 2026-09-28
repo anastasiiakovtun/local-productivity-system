@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useVaultStore } from './stores/vault.js';
-import { PhHouse, PhCalendarBlank, PhCheckCircle, PhClockCounterClockwise } from '@phosphor-icons/vue';
+import AppSidebar from './components/AppSidebar.vue';
 import InboxView from './views/InboxView.vue';
 import TodayView from './views/TodayView.vue';
 import CompletedView from './views/CompletedView.vue';
@@ -17,8 +17,38 @@ const activeView = ref('inbox');
 const screen = ref('list');
 const focusTask = ref(null);
 const breakMinutes = ref(5);
+const sidebarCollapsed = ref(false);
+const sidebarError = ref(null);
 
-onMounted(() => vault.init());
+onMounted(async () => {
+  await vault.init();
+  if (!vault.initialized) return;
+  try {
+    const result = await window.app.getPreferences();
+    if (result.status === 'success') sidebarCollapsed.value = result.data.sidebarCollapsed ?? false;
+  } catch { /* use expanded default */ }
+});
+
+async function toggleSidebar() {
+  const previous = sidebarCollapsed.value;
+  sidebarCollapsed.value = !previous;
+  sidebarError.value = null;
+  try {
+    const result = await window.app.setPreferences({ sidebarCollapsed: sidebarCollapsed.value });
+    if (result.status !== 'success') throw new Error(result.reason);
+  } catch {
+    sidebarCollapsed.value = previous;
+    sidebarError.value = 'Could not save sidebar preference.';
+  }
+}
+
+function navigate(view) {
+  activeView.value = view;
+}
+
+function selectProject() {
+  activeView.value = 'inbox';
+}
 
 function onFocus(task) { focusTask.value = task; screen.value = 'resume'; }
 function onResumeCancel() { screen.value = 'list'; focusTask.value = null; }
@@ -52,7 +82,7 @@ function onFinishFlow() { screen.value = 'list'; focusTask.value = null; }
     <button @click="vault.init()">Retry</button>
   </div>
 
-  <div v-else class="app-shell">
+  <div v-else class="app-shell" :class="{ 'app-shell-collapsed': sidebarCollapsed }">
     <template v-if="screen === 'resume'">
       <ResumePacketView
         :task="focusTask"
@@ -91,37 +121,17 @@ function onFinishFlow() { screen.value = 'list'; focusTask.value = null; }
     </template>
 
     <template v-else>
-      <nav class="sidebar" aria-label="Main navigation">
-        <div class="sidebar-logo">Obsidian Focus</div>
-        <ul class="nav-list" role="list">
-          <li>
-            <button type="button" class="nav-item" :aria-current="activeView === 'inbox' ? 'page' : undefined" @click="activeView = 'inbox'">
-              <PhHouse :weight="activeView === 'inbox' ? 'fill' : 'regular'" :size="18" aria-hidden="true" />
-              <span>Inbox</span>
-            </button>
-          </li>
-          <li>
-            <button type="button" class="nav-item" :aria-current="activeView === 'today' ? 'page' : undefined" @click="activeView = 'today'">
-              <PhCalendarBlank :weight="activeView === 'today' ? 'fill' : 'regular'" :size="18" aria-hidden="true" />
-              <span>Today</span>
-            </button>
-          </li>
-          <li>
-            <button type="button" class="nav-item" :aria-current="activeView === 'completed' ? 'page' : undefined" @click="activeView = 'completed'">
-              <PhCheckCircle :weight="activeView === 'completed' ? 'fill' : 'regular'" :size="18" aria-hidden="true" />
-              <span>Completed</span>
-            </button>
-          </li>
-          <li>
-            <button type="button" class="nav-item" :aria-current="activeView === 'sessions' ? 'page' : undefined" @click="activeView = 'sessions'">
-              <PhClockCounterClockwise :weight="activeView === 'sessions' ? 'fill' : 'regular'" :size="18" aria-hidden="true" />
-              <span>Sessions</span>
-            </button>
-          </li>
-        </ul>
-      </nav>
+      <AppSidebar
+        :active-view="activeView"
+        :collapsed="sidebarCollapsed"
+        :projects="[]"
+        @navigate="navigate"
+        @toggle-collapse="toggleSidebar"
+        @select-project="selectProject"
+      />
 
       <main class="main-content">
+        <p v-if="sidebarError" role="alert" class="error sidebar-error">{{ sidebarError }}</p>
         <InboxView          v-if="activeView === 'inbox'"     @focus="onFocus" />
         <TodayView          v-else-if="activeView === 'today'" @focus="onFocus" />
         <CompletedView      v-else-if="activeView === 'completed'" />

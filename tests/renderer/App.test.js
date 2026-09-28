@@ -25,7 +25,7 @@ beforeEach(() => {
     abandonSession: vi.fn().mockResolvedValue({ status: 'success', data: {} }),
     endSession: vi.fn(),
     getLastCheckpoint: vi.fn().mockResolvedValue({ status: 'success', data: null }),
-    getPreferences: vi.fn().mockResolvedValue({ status: 'success', data: { vaultPath: '/vault', defaultFocusMinutes: 25 } }),
+    getPreferences: vi.fn().mockResolvedValue({ status: 'success', data: { vaultPath: '/vault', defaultFocusMinutes: 25, sidebarCollapsed: false } }),
     listSessions: vi.fn().mockResolvedValue({ status: 'success', data: [] }),
     saveCheckpoint: vi.fn(),
   };
@@ -40,6 +40,30 @@ describe('App shell', () => {
     expect(w.text()).toContain('Today');
     expect(w.text()).toContain('Completed');
     expect(w.text()).toContain('Sessions');
+  });
+
+  it('loads and persists collapsed sidebar preference', async () => {
+    window.app.getPreferences.mockResolvedValue({
+      status: 'success',
+      data: { vaultPath: '/vault', defaultFocusMinutes: 25, sidebarCollapsed: true },
+    });
+    const w = mount(App);
+    await flushPromises();
+    expect(w.find('.sidebar-collapsed').exists()).toBe(true);
+    await w.find('button[aria-label="Expand sidebar"]').trigger('click');
+    await flushPromises();
+    expect(window.app.setPreferences).toHaveBeenCalledWith({ sidebarCollapsed: false });
+    expect(w.find('.sidebar-expanded').exists()).toBe(true);
+  });
+
+  it('reverts collapse and shows an alert when persistence fails', async () => {
+    window.app.setPreferences.mockResolvedValue({ status: 'error', reason: 'write-failed' });
+    const w = mount(App);
+    await flushPromises();
+    await w.find('button[aria-label="Collapse sidebar"]').trigger('click');
+    await flushPromises();
+    expect(w.find('.sidebar-expanded').exists()).toBe(true);
+    expect(w.find('[role="alert"]').text()).toContain('Could not save sidebar preference');
   });
 
   it('shows loading screen before initialization', () => {

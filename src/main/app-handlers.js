@@ -36,6 +36,8 @@ export function createAppHandlers({ getMainWindow, taskStore, sessionStore, chec
       managedFolder: prefs.managedFolder ?? 'Productivity',
       defaultFocusMinutes: prefs.defaultFocusMinutes ?? 25,
       defaultBreakMinutes: prefs.defaultBreakMinutes ?? 5,
+      sidebarCollapsed: prefs.sidebarCollapsed ?? false,
+      floatingTimerEnabled: prefs.floatingTimerEnabled ?? false,
     };
   }
 

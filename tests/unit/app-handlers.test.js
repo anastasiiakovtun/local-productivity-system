@@ -56,6 +56,8 @@ describe('handleGetPreferences', () => {
     expect(result.status).toBe('success');
     expect(result.data.defaultFocusMinutes).toBe(25);
     expect(result.data.defaultBreakMinutes).toBe(5);
+    expect(result.data.sidebarCollapsed).toBe(false);
+    expect(result.data.floatingTimerEnabled).toBe(false);
   });
 });
 

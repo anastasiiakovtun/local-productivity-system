@@ -43,6 +43,12 @@ export function validateListTasks(view) {
 // Validates preferences object
 export function validatePreferences(prefs) {
   if (!prefs || typeof prefs !== 'object') return 'prefs must be an object';
+  if ('sidebarCollapsed' in prefs && typeof prefs.sidebarCollapsed !== 'boolean') {
+    return 'sidebarCollapsed must be boolean';
+  }
+  if ('floatingTimerEnabled' in prefs && typeof prefs.floatingTimerEnabled !== 'boolean') {
+    return 'floatingTimerEnabled must be boolean';
+  }
   return null;
 }
 
