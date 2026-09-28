@@ -19,7 +19,7 @@ function isSenderValid(event, mainWindow) {
   );
 }
 
-export function createAppHandlers({ getMainWindow, taskStore, sessionStore, db, logger = console }) {
+export function createAppHandlers({ getMainWindow, taskStore, sessionStore, checkpointStore, db, logger = console }) {
   function guard(event) {
     if (!isSenderValid(event, getMainWindow())) return false;
     return true;
@@ -167,6 +167,39 @@ export function createAppHandlers({ getMainWindow, taskStore, sessionStore, db, 
     try { return ok(sessionStore.listSessions(filters ?? {})); } catch { return unexpectedError(); }
   }
 
+  async function handleSaveCheckpoint(event, sessionId, fields) {
+    if (!guard(event)) return unexpectedError();
+    if (typeof sessionId !== 'string' || !sessionId) return err('sessionId required');
+    if (!fields || typeof fields !== 'object') return err('fields required');
+    try {
+      // Compute actual/overflow from session timestamps
+      const session = db.prepare('SELECT * FROM sessions WHERE session_id = ?').get(sessionId);
+      if (!session) return err('session not found');
+      const startMs = new Date(session.started_occurred_at_utc).getTime();
+      const actualSeconds = Math.round((Date.now() - startMs) / 1000) - (session.paused_seconds ?? 0);
+      const plannedSeconds = session.planned_minutes * 60;
+      const overflowSeconds = Math.max(0, actualSeconds - plannedSeconds);
+
+      const { loggedTimestamp } = await import('./logged-timestamp.js');
+      const result = await checkpointStore.saveCheckpoint({
+        sessionId,
+        taskId: session.task_id,
+        projectLabel: session.project_label,
+        outcome: fields.outcome,
+        status: fields.status,
+        nextAction: fields.nextAction ?? null,
+        blocker: fields.blocker ?? null,
+        ts: loggedTimestamp(),
+        actualSeconds,
+        overflowSeconds,
+      });
+      return result.status === 'success' ? ok(result) : result;
+    } catch (e) {
+      logger.error('checkpoints:save failed', e);
+      return unexpectedError();
+    }
+  }
+
   return {
     handleGetPreferences,
     handleSetPreferences,
@@ -183,6 +216,7 @@ export function createAppHandlers({ getMainWindow, taskStore, sessionStore, db, 
     handleGetActiveSession,
     handleGetLastCheckpoint,
     handleListSessions,
+    handleSaveCheckpoint,
   };
 }
 
@@ -203,4 +237,5 @@ export function registerAppHandlers({ ipcMain, ...deps }) {
   ipcMain.handle('sessions:get-active',       h.handleGetActiveSession);
   ipcMain.handle('sessions:get-checkpoint',   h.handleGetLastCheckpoint);
   ipcMain.handle(CHANNELS.SESSIONS_LIST,      h.handleListSessions);
+  ipcMain.handle(CHANNELS.CHECKPOINTS_SAVE,   h.handleSaveCheckpoint);
 }
