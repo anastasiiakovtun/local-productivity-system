@@ -8,7 +8,7 @@ const props = defineProps({
   showFloatingToggle: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['end', 'abandoned']);
+const emit = defineEmits(['end', 'abandoned', 'minimize']);
 
 const session = useSessionStore();
 const showAbandon = ref(false);

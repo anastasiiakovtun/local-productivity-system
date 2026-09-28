@@ -97,4 +97,18 @@ describe('TimerView', () => {
     await flushPromises();
     expect(w.emitted('end')).toBeTruthy();
   });
+
+  it('declares and forwards the minimize event without a Vue warning', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const w = mountWithSession();
+
+    w.findComponent(stubs.TimerModal).vm.$emit('minimize');
+    await flushPromises();
+
+    expect(w.emitted('minimize')).toBeTruthy();
+    expect(warn).not.toHaveBeenCalledWith(
+      expect.stringContaining('Component emitted event "minimize"'),
+    );
+    warn.mockRestore();
+  });
 });
