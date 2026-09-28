@@ -840,6 +840,119 @@ button:focus-visible {
 
 .timer-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
+/* ─── Timer Modal ──────────────────────────────────────── */
+.timer-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.timer-modal {
+  background: var(--color-surface);
+  border: 0.5px solid rgba(245,245,247,0.08);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  width: 400px;
+  max-width: 94vw;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.timer-modal-header {
+  display: flex;
+  justify-content: flex-end;
+}
+.timer-modal-header-actions { display: flex; gap: 6px; }
+.timer-icon-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.timer-icon-btn:hover { color: var(--color-text); }
+
+.timer-modal-identity { display: flex; align-items: center; gap: var(--space-4); }
+.timer-modal-task { display: flex; flex-direction: column; gap: 2px; }
+.timer-modal-project { font-size: var(--text-xs); color: var(--color-text-muted); margin: 0; }
+.timer-modal-title { font-size: var(--text-lg); font-weight: 600; margin: 0; }
+
+.timer-time-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  padding: var(--space-2) 0;
+  border-top: 0.5px solid rgba(245,245,247,0.06);
+}
+.timer-overflow-label {
+  color: var(--color-blocked);
+  font-size: var(--text-sm);
+  margin: 0;
+}
+.timer-modal-controls { display: flex; gap: var(--space-3); align-items: center; }
+.timer-control-btn { display: flex; align-items: center; gap: 6px; }
+
+/* ─── Quick Abandon Panel ──────────────────────────────── */
+.quick-abandon-panel {
+  background: var(--color-surface);
+  border: 0.5px solid rgba(245,245,247,0.08);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  width: 400px;
+  max-width: 94vw;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.quick-abandon-title { font-size: var(--text-xl); margin: 0; }
+.quick-abandon-hint { font-size: var(--text-sm); color: var(--color-text-muted); margin: 0; }
+.quick-abandon-input {
+  background: rgba(255,255,255,0.04);
+  border: 0.5px solid rgba(245,245,247,0.10);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: var(--text-base);
+  padding: var(--space-3);
+  resize: vertical;
+  width: 100%;
+  font-family: inherit;
+}
+.quick-abandon-input:focus {
+  outline: none;
+  border-color: var(--color-teal);
+}
+.quick-abandon-actions { display: flex; gap: var(--space-3); justify-content: flex-end; }
+
+/* ─── Floating Timer Pill ──────────────────────────────── */
+.floating-timer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-surface);
+  border: 0.5px solid rgba(245,245,247,0.10);
+  border-radius: 32px;
+  padding: 6px 12px;
+  height: 48px;
+}
+.floating-timer-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.floating-timer-title { font-size: 11px; color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.floating-time { font-size: 15px; font-weight: 600; color: var(--color-teal); letter-spacing: 0.05em; }
+.floating-timer-controls { display: flex; gap: 4px; }
+.floating-icon-btn {
+  background: none; border: none; color: var(--color-text-muted);
+  cursor: pointer; padding: 4px; border-radius: 4px; display: flex; align-items: center;
+  transition: color 0.15s;
+}
+.floating-icon-btn:hover { color: var(--color-text); }
+
 /* ─── Break view ──────────────────────────────────────── */
 .break-timer {
   font-size: var(--text-timer);

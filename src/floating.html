@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Timer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f13;
+      color: #f5f5f7;
+      height: 64px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 10px;
+      -webkit-app-region: drag;
+    }
+    button { -webkit-app-region: no-drag; }
+    #cover {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: #2dd4bf22;
+      border: 0.5px solid rgba(245,245,247,0.08);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+    #info { flex: 1; min-width: 0; }
+    #title { font-size: 11px; color: #9ca3af; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #time { font-size: 16px; font-weight: 600; color: #2dd4bf; letter-spacing: 0.05em; }
+    #time.overflow { color: #f59e0b; }
+    .controls { display: flex; gap: 4px; flex-shrink: 0; }
+    .icon-btn {
+      background: none; border: none; cursor: pointer;
+      color: #9ca3af; padding: 4px; border-radius: 4px;
+      font-size: 14px; line-height: 1;
+      transition: color 0.15s;
+    }
+    .icon-btn:hover { color: #f5f5f7; }
+  </style>
+</head>
+<body>
+  <div id="cover">⏱</div>
+  <div id="info">
+    <div id="title">Focus session</div>
+    <div id="time">25:00</div>
+  </div>
+  <div class="controls">
+    <button class="icon-btn" id="btn-pause" title="Pause" aria-label="Pause">⏸</button>
+    <button class="icon-btn" id="btn-restore" title="Restore" aria-label="Restore">↗</button>
+  </div>
+
+  <script>
+    const $time = document.getElementById('time');
+    const $title = document.getElementById('title');
+    const $btnPause = document.getElementById('btn-pause');
+    const $btnRestore = document.getElementById('btn-restore');
+
+    let paused = false;
+
+    async function refresh() {
+      if (!window.floatingTimer) return;
+      const s = await window.floatingTimer.getState();
+      if (!s) return;
+      paused = s.timerState === 'paused';
+      $title.textContent = s.taskTitle || 'Focus session';
+      const rem = s.secondsRemaining ?? 0;
+      const overflow = s.timerState === 'overflow';
+      const secs = overflow ? s.elapsedOverflow : Math.max(0, rem);
+      const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+      const ss = String(secs % 60).padStart(2, '0');
+      $time.textContent = overflow ? `+${mm}:${ss}` : `${mm}:${ss}`;
+      $time.className = overflow ? 'overflow' : '';
+      $btnPause.textContent = paused ? '▶' : '⏸';
+      $btnPause.title = $btnPause.ariaLabel = paused ? 'Resume' : 'Pause';
+    }
+
+    $btnPause.addEventListener('click', async () => {
+      if (paused) { await window.floatingTimer.resume(); }
+      else { await window.floatingTimer.pause(); }
+      refresh();
+    });
+
+    $btnRestore.addEventListener('click', () => window.floatingTimer.focusMain());
+
+    setInterval(refresh, 1000);
+    refresh();
+  </script>
+</body>
+</html>

@@ -130,3 +130,31 @@ describe('CheckpointStore.saveCheckpoint', () => {
       .rejects.toThrow('vault-not-selected');
   });
 });
+
+describe('CheckpointStore.writeAbandonLog with optional outcome', () => {
+  it('appends abandoned block without outcome when outcome is null', async () => {
+    const s = startSession();
+    await checkpointStore.writeAbandonLog(s.session_id, null);
+    const logPath = path.join(vaultRoot, 'Productivity', 'Focus Logs', 'task-abc.md');
+    const content = await readFile(logPath, 'utf8');
+    expect(content).toContain('abandoned');
+    expect(content).not.toContain('**Outcome:**');
+  });
+
+  it('appends abandoned block with outcome when non-empty outcome provided', async () => {
+    const s = startSession();
+    await checkpointStore.writeAbandonLog(s.session_id, 'Ran out of time.');
+    const logPath = path.join(vaultRoot, 'Productivity', 'Focus Logs', 'task-abc.md');
+    const content = await readFile(logPath, 'utf8');
+    expect(content).toContain('abandoned');
+    expect(content).toContain('Ran out of time.');
+  });
+
+  it('treats empty string outcome same as null', async () => {
+    const s = startSession();
+    await checkpointStore.writeAbandonLog(s.session_id, '');
+    const logPath = path.join(vaultRoot, 'Productivity', 'Focus Logs', 'task-abc.md');
+    const content = await readFile(logPath, 'utf8');
+    expect(content).not.toContain('**Outcome:**');
+  });
+});

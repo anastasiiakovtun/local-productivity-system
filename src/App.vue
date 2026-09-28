@@ -22,6 +22,7 @@ const focusTask = ref(null);
 const breakMinutes = ref(5);
 const sidebarCollapsed = ref(false);
 const sidebarError = ref(null);
+const floatingTimerEnabled = ref(false);
 
 onMounted(async () => {
   await vault.init();
@@ -29,6 +30,7 @@ onMounted(async () => {
   try {
     const result = await window.app.getPreferences();
     if (result.status === 'success') sidebarCollapsed.value = result.data.sidebarCollapsed ?? false;
+    if (result.status === 'success') floatingTimerEnabled.value = result.data.floatingTimerEnabled ?? false;
   } catch { /* use expanded default */ }
 });
 
@@ -101,6 +103,7 @@ function onFinishFlow() { screen.value = 'list'; focusTask.value = null; }
 
     <template v-else-if="screen === 'timer'">
       <TimerView
+        :show-floating-toggle="floatingTimerEnabled"
         @end="onEnd"
         @abandoned="onAbandoned"
       />

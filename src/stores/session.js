@@ -86,7 +86,18 @@ export const useSessionStore = defineStore('session', () => {
   async function abandonSession() {
     if (!activeSession.value) return;
     stopTicker();
-    const r = await window.app.abandonSession(activeSession.value.session_id);
+    const r = await window.app.abandonSessionWithOutcome(activeSession.value.session_id, null);
+    if (r.status === 'success') {
+      activeSession.value = null;
+      timerState.value = 'idle';
+    }
+    return r;
+  }
+
+  async function abandonSessionWithOutcome(outcome = null) {
+    if (!activeSession.value) return;
+    stopTicker();
+    const r = await window.app.abandonSessionWithOutcome(activeSession.value.session_id, outcome ?? null);
     if (r.status === 'success') {
       activeSession.value = null;
       timerState.value = 'idle';
@@ -105,6 +116,6 @@ export const useSessionStore = defineStore('session', () => {
     activeSession, lastCheckpoint, timerState,
     secondsRemaining, elapsedOverflow,
     loadActiveSession, loadLastCheckpoint,
-    startSession, pauseSession, resumeSession, abandonSession, clearSession,
+    startSession, pauseSession, resumeSession, abandonSession, abandonSessionWithOutcome, clearSession,
   };
 });

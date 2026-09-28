@@ -20,7 +20,7 @@ function isSenderValid(event, mainWindow) {
   );
 }
 
-export function createAppHandlers({ getMainWindow, taskStore, sessionStore, checkpointStore, projectCoverStore, db, logger = console }) {
+export function createAppHandlers({ getMainWindow, taskStore, sessionStore, checkpointStore, projectCoverStore, db, openFloatingWindow, closeFloatingWindow, logger = console }) {
   function guard(event) {
     if (!isSenderValid(event, getMainWindow())) return false;
     return true;
@@ -154,7 +154,7 @@ export function createAppHandlers({ getMainWindow, taskStore, sessionStore, chec
     try {
       const result = sessionStore.abandonSession(sessionId);
       if (checkpointStore) {
-        try { await checkpointStore.writeAbandonLog(sessionId); } catch { /* non-fatal: log unavailable */ }
+        try { await checkpointStore.writeAbandonLog(sessionId, null); } catch { /* non-fatal: log unavailable */ }
       }
       return ok(result);
     } catch { return unexpectedError(); }
@@ -254,6 +254,7 @@ export function createAppHandlers({ getMainWindow, taskStore, sessionStore, chec
 
 export function registerAppHandlers({ ipcMain, ...deps }) {
   const h = createAppHandlers(deps);
+  const { openFloatingWindow, closeFloatingWindow, getMainWindow } = deps;
   ipcMain.handle(CHANNELS.GET_PREFERENCES,    h.handleGetPreferences);
   ipcMain.handle(CHANNELS.SET_PREFERENCES,    h.handleSetPreferences);
   ipcMain.handle(CHANNELS.TASKS_CREATE,       h.handleCreateTask);
@@ -273,4 +274,8 @@ export function registerAppHandlers({ ipcMain, ...deps }) {
   ipcMain.handle(CHANNELS.HOME_GET_RESUME,    h.handleGetHomeResume);
   ipcMain.handle(CHANNELS.PROJECTS_LIST,      h.handleListProjects);
   ipcMain.handle(CHANNELS.PROJECTS_SET_COVER, h.handleSetProjectCover);
+  if (openFloatingWindow && closeFloatingWindow) {
+    ipcMain.handle('floating:open',  (e) => { if (!isSenderValid(e, getMainWindow())) return null; openFloatingWindow(); return { ok: true }; });
+    ipcMain.handle('floating:close', (e) => { if (!isSenderValid(e, getMainWindow())) return null; closeFloatingWindow(); return { ok: true }; });
+  }
 }

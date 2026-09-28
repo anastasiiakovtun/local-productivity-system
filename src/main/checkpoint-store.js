@@ -82,7 +82,7 @@ export class CheckpointStore {
     return { status: 'success', checkpoint_id };
   }
 
-  async writeAbandonLog(sessionId) {
+  async writeAbandonLog(sessionId, outcome = null) {
     const vaultRoot = this._getVaultRoot?.();
     if (typeof vaultRoot !== 'string' || vaultRoot.length === 0) {
       throw new Error('vault-not-selected');
@@ -94,7 +94,8 @@ export class CheckpointStore {
     const actualSeconds = session.ended_occurred_at_utc
       ? Math.round((new Date(session.ended_occurred_at_utc).getTime() - new Date(session.started_occurred_at_utc).getTime()) / 1000) - (session.paused_seconds ?? 0)
       : 0;
-    await this._appendFocusLogBlock(vaultRoot, session, { outcome: null, status: 'abandoned', nextAction: null, ts, actualSeconds, overflowSeconds: 0 });
+    const effectiveOutcome = typeof outcome === 'string' && outcome.trim() ? outcome.trim() : null;
+    await this._appendFocusLogBlock(vaultRoot, session, { outcome: effectiveOutcome, status: 'abandoned', nextAction: null, ts, actualSeconds, overflowSeconds: 0 });
   }
 
   async _appendToFocusLog(vaultRoot, session, { outcome, status, nextAction, ts, actualSeconds, overflowSeconds }) {

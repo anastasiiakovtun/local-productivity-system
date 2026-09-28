@@ -30,54 +30,71 @@ beforeEach(() => {
   };
 });
 
+const stubs = {
+  TimerModal: {
+    template: '<div class="timer-modal-stub" role="dialog"><slot/></div>',
+    emits: ['finish', 'request-abandon', 'minimize'],
+    props: ['showFloatingToggle'],
+  },
+  QuickAbandonPanel: {
+    template: '<div class="quick-abandon-stub"><slot/></div>',
+    emits: ['back', 'confirm'],
+  },
+  PhPause: { template: '<span/>' },
+  PhPlay: { template: '<span/>' },
+  PhX: { template: '<span/>' },
+  PhMinus: { template: '<span/>' },
+  ProjectCover: { template: '<div/>' },
+};
+
 function mountWithSession(sessionOverrides = {}) {
   const session = useSessionStore();
   session.activeSession = makeSession(sessionOverrides);
   session.timerState = sessionOverrides.status === 'paused' ? 'paused' : 'running';
   session.secondsRemaining = 1200;
-  return mount(TimerView);
+  return mount(TimerView, { global: { stubs } });
 }
 
 describe('TimerView', () => {
-  it('displays task title', () => {
+  it('renders TimerModal when no quick-abandon', () => {
     const w = mountWithSession();
-    expect(w.text()).toContain('Write essay');
+    expect(w.find('.timer-modal-stub').exists()).toBe(true);
+    expect(w.find('.quick-abandon-stub').exists()).toBe(false);
   });
 
-  it('shows countdown when running', () => {
+  it('switches to QuickAbandonPanel on request-abandon', async () => {
     const w = mountWithSession();
-    expect(w.find('.timer-display').text()).toMatch(/\d{2}:\d{2}/);
-    expect(w.find('.timer-display').classes()).not.toContain('overflow');
-  });
-
-  it('Pause button calls pauseSession', async () => {
-    const w = mountWithSession();
-    await w.find('button[class*="btn-secondary"]').trigger('click');
+    const modal = w.findComponent(stubs.TimerModal);
+    modal.vm.$emit('request-abandon');
     await flushPromises();
-    expect(window.app.pauseSession).toHaveBeenCalled();
+    expect(w.find('.quick-abandon-stub').exists()).toBe(true);
+    expect(w.find('.timer-modal-stub').exists()).toBe(false);
   });
 
-  it('Resume button shown when paused, calls resumeSession', async () => {
-    const w = mountWithSession({ status: 'paused' });
-    await w.find('button[class*="btn-secondary"]').trigger('click');
-    await flushPromises();
-    expect(window.app.resumeSession).toHaveBeenCalled();
-  });
-
-  it('shows overflow label when timerState is overflow', () => {
-    const session = useSessionStore();
-    session.activeSession = makeSession();
-    session.timerState = 'overflow';
-    session.elapsedOverflow = 120;
-    const w = mount(TimerView);
-    expect(w.find('.timer-display').classes()).toContain('overflow');
-    expect(w.text()).toContain('Overflow');
-  });
-
-  it('Abandon button calls abandonSession', async () => {
+  it('returns to modal when QuickAbandonPanel emits back', async () => {
     const w = mountWithSession();
-    await w.find('.btn-danger').trigger('click');
+    w.findComponent(stubs.TimerModal).vm.$emit('request-abandon');
     await flushPromises();
-    expect(window.app.abandonSession).toHaveBeenCalled();
+    w.findComponent(stubs.QuickAbandonPanel).vm.$emit('back');
+    await flushPromises();
+    expect(w.find('.timer-modal-stub').exists()).toBe(true);
+  });
+
+  it('calls abandonSessionWithOutcome and emits abandoned when confirm fires', async () => {
+    window.app.abandonSessionWithOutcome = vi.fn().mockResolvedValue({ status: 'success', data: makeSession({ status: 'abandoned' }) });
+    const w = mountWithSession();
+    w.findComponent(stubs.TimerModal).vm.$emit('request-abandon');
+    await flushPromises();
+    w.findComponent(stubs.QuickAbandonPanel).vm.$emit('confirm', 'Ran out of time');
+    await flushPromises();
+    expect(window.app.abandonSessionWithOutcome).toHaveBeenCalledWith('sid-1', 'Ran out of time');
+    expect(w.emitted('abandoned')).toBeTruthy();
+  });
+
+  it('finish emits end', async () => {
+    const w = mountWithSession();
+    w.findComponent(stubs.TimerModal).vm.$emit('finish');
+    await flushPromises();
+    expect(w.emitted('end')).toBeTruthy();
   });
 });

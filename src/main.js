@@ -18,6 +18,53 @@ import { registerAppHandlers } from './main/app-handlers.js';
 app.enableSandbox();
 
 let mainWindow = null;
+let floatingWindow = null;
+
+function openFloatingWindow(sessionStore) {
+  if (floatingWindow && !floatingWindow.isDestroyed()) { floatingWindow.focus(); return; }
+  const floatingPreloadPath = path.join(__dirname, 'preload/floating-api.js');
+  floatingWindow = new BrowserWindow({
+    width: 300, height: 64,
+    frame: false, alwaysOnTop: true, resizable: false,
+    webPreferences: {
+      nodeIntegration: false, contextIsolation: true, sandbox: true,
+      preload: floatingPreloadPath,
+    },
+  });
+  const floatingHtmlPath = path.join(__dirname, '../floating.html');
+  floatingWindow.loadFile(floatingHtmlPath);
+  floatingWindow.on('closed', () => { floatingWindow = null; });
+
+  // Register floating IPC — only accept calls from floatingWindow.webContents
+  ipcMain.handle('floating:get-state', (event) => {
+    if (!floatingWindow || event.sender !== floatingWindow.webContents) return null;
+    const active = sessionStore.getActiveSession?.();
+    if (!active) return null;
+    return {
+      timerState: active.status === 'paused' ? 'paused' : 'running',
+      secondsRemaining: 0,
+      elapsedOverflow: 0,
+      taskTitle: active.task_title,
+    };
+  });
+  ipcMain.handle('floating:pause', (event) => {
+    if (!floatingWindow || event.sender !== floatingWindow.webContents) return null;
+    return { ok: true };
+  });
+  ipcMain.handle('floating:resume', (event) => {
+    if (!floatingWindow || event.sender !== floatingWindow.webContents) return null;
+    return { ok: true };
+  });
+  ipcMain.handle('floating:focus-main', (event) => {
+    if (!floatingWindow || event.sender !== floatingWindow.webContents) return null;
+    mainWindow?.focus();
+    return { ok: true };
+  });
+}
+
+function closeFloatingWindow() {
+  if (floatingWindow && !floatingWindow.isDestroyed()) floatingWindow.close();
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow(
@@ -86,6 +133,8 @@ app.whenReady().then(() => {
     ipcMain, db,
     getMainWindow: () => mainWindow,
     taskStore, sessionStore, checkpointStore, projectCoverStore,
+    openFloatingWindow: () => openFloatingWindow(sessionStore),
+    closeFloatingWindow,
   });
 
   createWindow();
