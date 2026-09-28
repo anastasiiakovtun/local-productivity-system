@@ -8,11 +8,14 @@ import SessionHistoryView from './views/SessionHistoryView.vue';
 import ResumePacketView from './views/ResumePacketView.vue';
 import TimerView from './views/TimerView.vue';
 import CheckpointView from './views/CheckpointView.vue';
+import BreakView from './views/BreakView.vue';
 
 const vault = useVaultStore();
 const activeView = ref('inbox');
+// screens: list | resume | timer | checkpoint | break-offer | break
 const screen = ref('list');
 const focusTask = ref(null);
+const breakMinutes = ref(5);
 
 onMounted(() => vault.init());
 
@@ -29,7 +32,15 @@ function onStarted() { screen.value = 'timer'; }
 function onEnd() { screen.value = 'checkpoint'; }
 function onAbandoned() { screen.value = 'list'; focusTask.value = null; }
 function onCheckpointCancel() { screen.value = 'timer'; }
-function onCheckpointSaved() { screen.value = 'list'; focusTask.value = null; }
+async function onCheckpointSaved() {
+  try {
+    const r = await window.app.getPreferences();
+    if (r.status === 'success') breakMinutes.value = r.data.defaultBreakMinutes ?? 5;
+  } catch { /* use default */ }
+  screen.value = 'break-offer';
+}
+function onTakeBreak() { screen.value = 'break'; }
+function onFinishFlow() { screen.value = 'list'; focusTask.value = null; }
 </script>
 
 <template>
@@ -68,6 +79,21 @@ function onCheckpointSaved() { screen.value = 'list'; focusTask.value = null; }
         @saved="onCheckpointSaved"
         @cancel="onCheckpointCancel"
       />
+    </template>
+
+    <template v-else-if="screen === 'break-offer'">
+      <div class="break-offer">
+        <h2>Session complete</h2>
+        <p>Take a break before your next session?</p>
+        <div style="display:flex;gap:10px">
+          <button type="button" class="btn-primary" aria-label="Take Break" @click="onTakeBreak">Take Break</button>
+          <button type="button" class="btn-secondary" aria-label="Skip break" @click="onFinishFlow">Done</button>
+        </div>
+      </div>
+    </template>
+
+    <template v-else-if="screen === 'break'">
+      <BreakView :break-minutes="breakMinutes" @done="onFinishFlow" />
     </template>
 
     <template v-else>

@@ -48,6 +48,19 @@ app.whenReady().then(() => {
   const dbPath = path.join(app.getPath('userData'), 'focus.db');
   const db = openDatabase(dbPath);
 
+  // Restore vault root from saved preferences on startup
+  try {
+    const savedVaultPath = db.prepare("SELECT value FROM preferences WHERE key = 'vaultPath'").get();
+    if (savedVaultPath) {
+      const parsed = JSON.parse(savedVaultPath.value);
+      if (typeof parsed === 'string') {
+        validateVault(parsed).then((result) => {
+          if (result.status === 'selected') vaultRoot = result.path;
+        });
+      }
+    }
+  } catch { /* non-fatal */ }
+
   const getVaultRoot = () => vaultRoot;
   const eventStore     = new TaskEventStore(db, getVaultRoot);
   const taskStore      = new TaskStore({ db, eventStore, getVaultRoot, readNote, writeSection });
