@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useVaultStore } from './stores/vault.js';
+import { PhHouse, PhCalendarBlank, PhCheckCircle, PhClockCounterClockwise } from '@phosphor-icons/vue';
 import InboxView from './views/InboxView.vue';
 import TodayView from './views/TodayView.vue';
 import CompletedView from './views/CompletedView.vue';
@@ -18,13 +19,6 @@ const focusTask = ref(null);
 const breakMinutes = ref(5);
 
 onMounted(() => vault.init());
-
-const navItems = [
-  { id: 'inbox',     label: 'Inbox' },
-  { id: 'today',     label: 'Today' },
-  { id: 'completed', label: 'Completed' },
-  { id: 'sessions',  label: 'Sessions' },
-];
 
 function onFocus(task) { focusTask.value = task; screen.value = 'resume'; }
 function onResumeCancel() { screen.value = 'list'; focusTask.value = null; }
@@ -98,17 +92,30 @@ function onFinishFlow() { screen.value = 'list'; focusTask.value = null; }
 
     <template v-else>
       <nav class="sidebar" aria-label="Main navigation">
-        <div class="sidebar-logo">Focus</div>
-        <ul class="nav-list">
-          <li v-for="item in navItems" :key="item.id">
-            <button
-              type="button"
-              class="nav-btn"
-              :class="{ active: activeView === item.id }"
-              :aria-current="activeView === item.id ? 'page' : undefined"
-              @click="activeView = item.id"
-            >
-              {{ item.label }}
+        <div class="sidebar-logo">Obsidian Focus</div>
+        <ul class="nav-list" role="list">
+          <li>
+            <button type="button" class="nav-item" :aria-current="activeView === 'inbox' ? 'page' : undefined" @click="activeView = 'inbox'">
+              <PhHouse :weight="activeView === 'inbox' ? 'fill' : 'regular'" :size="18" aria-hidden="true" />
+              <span>Inbox</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="nav-item" :aria-current="activeView === 'today' ? 'page' : undefined" @click="activeView = 'today'">
+              <PhCalendarBlank :weight="activeView === 'today' ? 'fill' : 'regular'" :size="18" aria-hidden="true" />
+              <span>Today</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="nav-item" :aria-current="activeView === 'completed' ? 'page' : undefined" @click="activeView = 'completed'">
+              <PhCheckCircle :weight="activeView === 'completed' ? 'fill' : 'regular'" :size="18" aria-hidden="true" />
+              <span>Completed</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="nav-item" :aria-current="activeView === 'sessions' ? 'page' : undefined" @click="activeView = 'sessions'">
+              <PhClockCounterClockwise :weight="activeView === 'sessions' ? 'fill' : 'regular'" :size="18" aria-hidden="true" />
+              <span>Sessions</span>
             </button>
           </li>
         </ul>

@@ -17,6 +17,7 @@
     "test:e2e": "npm run package && node tests/e2e/electron-smoke.mjs"
   },
   "dependencies": {
+    "@phosphor-icons/vue": "^2.2.1",
     "better-sqlite3": "^13.0.3",
     "pinia": "^4.0.3",
     "vue": "3.5.42"
