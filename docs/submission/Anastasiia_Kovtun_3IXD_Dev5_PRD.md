@@ -222,11 +222,19 @@ Windows has not been manually verified. macOS 15.6 on Apple silicon is the verif
 
 ## 8. AI usage note
 
-**[AUTHOR INPUT REQUIRED — Anastasiia will provide a truthful first-person account. AI may review grammar and requirement coverage but must not invent personal experience.]**
+I used AI throughout the project for research and requirements gathering, translating my UI/UX sketches into `DESIGN-HANDOFF.md`, test-driven implementation, automated test writing, code review, and drafting documentation. I created separate Researcher, Designer, Coder, and Reviewer profiles so each stage received focused output instead of relying on one general-purpose pass.
+
+I remained responsible for checking the work. I used a separate Claude session to review Hermes’s output independently, inspected the code in VS Code instead of trusting summaries, and ran the automated test suite after each change. I also tested the packaged application manually. That visual review caught a real regression that the passing tests missed: a scoped CSS-file split had expanded into an unapproved component reorganization and class renaming that broke the sidebar styling. I required the broader work to be reverted and retained only the approved stylesheet split. I also corrected visual details through reference images and precise feedback, including restoring the ambient panel border to the requested `0.5px` treatment.
 
 ## 9. Reflection
 
-**[AUTHOR INPUT REQUIRED — Anastasiia will provide her own challenges, learning, evaluation, and next steps. AI may review and edit her draft without replacing her voice.]**
+The hardest part was getting the visual design to match what I actually wanted. Many details depended on precise prompting. For example, a subtle gradient border that appears to catch light from the background is difficult to describe completely in text. I had to iterate with reference images and specific corrections rather than expecting the first result to be right.
+
+I learned how to create specialized AI profiles, how to use skills, and how useful reusable skills can be. Choosing Electron and Vue instead of Tauri was one of the best decisions. It reflected my real experience with JavaScript and Vue and my lack of Rust experience. That kept the timeline realistic and meant I could debug problems myself instead of being blocked by an unfamiliar language.
+
+The largest rework came from the stylesheet change. I approved a low-risk split of one stylesheet into several files, but the AI went further by reorganizing components into folders, adding scoped styles, and renaming classes. The automated tests remained green, but the packaged app’s sidebar was visibly broken. I caught this by opening the real application and had the unapproved refactor reverted.
+
+Next time, I would require a manual visual check immediately after every styling change instead of relying on the test suite alone. I would also define the exact in-scope and out-of-scope files before implementation so a narrow request cannot expand silently. With more time, I would complete the remaining polish from `DESIGN-HANDOFF.md`, including full keyboard shortcuts and richer icon sections, then explore cross-device live-timer synchronization and natural-language quick capture.
 
 ## 10. Limitations and next steps
 
