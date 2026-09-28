@@ -1,3 +1,19 @@
+/* ─── Shared workflow card ─────────────────────────────── */
+.app-shell > .workflow-card {
+  grid-column: 1 / -1;
+  place-self: center;
+  width: min(560px, calc(100vw - 48px));
+  margin: var(--space-6);
+}
+
+.workflow-card {
+  padding: var(--space-8);
+  border: 0.5px solid transparent;
+  border-radius: var(--radius-lg);
+  background: rgba(26, 26, 32, 0.82);
+  box-shadow: var(--shadow-raised);
+}
+
 /* ─── Break view ──────────────────────────────────────── */
 .break-timer {
   font-size: var(--text-timer);
@@ -25,6 +41,22 @@
 .break-offer p {
   color: var(--color-text-muted);
   margin-bottom: var(--space-6);
+}
+
+.break-duration-label {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-2);
+}
+
+.break-offer .duration-row {
+  margin-bottom: var(--space-4);
+}
+
+.break-offer-actions {
+  display: flex;
+  gap: 10px;
 }
 
 /* ─── Checkpoint form ─────────────────────────────────── */
@@ -86,13 +118,41 @@
   transition: border-color var(--dur-fast), color var(--dur-fast), background var(--dur-fast);
 }
 
-.status-option input:checked + span {
+.status-option--continue input:checked + span {
   border-color: rgba(45, 212, 191, 0.40);
   color: var(--color-accent);
   background: rgba(45, 212, 191, 0.08);
 }
 
+.status-option--blocked input:checked + span {
+  border-color: rgba(245, 158, 11, 0.42);
+  color: var(--color-blocked);
+  background: rgba(245, 158, 11, 0.10);
+}
+
+.status-option--completed input:checked + span {
+  border-color: rgba(34, 197, 94, 0.42);
+  color: var(--color-completed);
+  background: rgba(34, 197, 94, 0.10);
+}
+
+.status-option--abandoned input:checked + span {
+  border-color: rgba(239, 68, 68, 0.42);
+  color: var(--color-abandoned);
+  background: rgba(239, 68, 68, 0.10);
+}
+
+.status-option input:focus-visible + span {
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.14);
+}
+
 .status-option span:hover { color: var(--color-text); }
+
+.form-group.has-blocker label { color: var(--color-blocked); }
+.form-group.has-blocker input[type="text"] {
+  border-color: rgba(245, 158, 11, 0.42);
+  background: rgba(245, 158, 11, 0.06);
+}
 
 /* ─── Status badges ───────────────────────────────────── */
 .status {
@@ -123,7 +183,8 @@
 .quick-abandon-panel,
 .floating-timer,
 .resume-section,
-.rp-checkpoint {
+.rp-checkpoint,
+.workflow-card {
   position: relative;
   isolation: isolate;
   border-color: transparent;
@@ -145,7 +206,8 @@
 .quick-abandon-panel::before,
 .floating-timer::before,
 .resume-section::before,
-.rp-checkpoint::before {
+.rp-checkpoint::before,
+.workflow-card::before {
   content: "";
   position: absolute;
   inset: 0;

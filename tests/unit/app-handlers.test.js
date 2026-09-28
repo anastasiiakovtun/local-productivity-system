@@ -109,8 +109,20 @@ describe('handleListTasks', () => {
 
   it('returns error for unknown view', async () => {
     const { handlers, validEvent } = setup();
-    const result = await handlers.handleListTasks(validEvent, 'trash');
+    const result = await handlers.handleListTasks(validEvent, 'nonexistent-view');
     expect(result.status).toBe('error');
+  });
+
+  it('handles trash view', async () => {
+    const { handlers, taskStore, validEvent } = setup();
+    await handlers.handleListTasks(validEvent, 'trash');
+    expect(taskStore.listTasks).toHaveBeenCalledWith({ view: 'trash' });
+  });
+
+  it('handles upcoming view', async () => {
+    const { handlers, taskStore, validEvent } = setup();
+    await handlers.handleListTasks(validEvent, 'upcoming');
+    expect(taskStore.listTasks).toHaveBeenCalledWith({ view: 'upcoming' });
   });
 });
 

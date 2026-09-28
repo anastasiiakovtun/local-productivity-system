@@ -1,120 +1,71 @@
 # Project Status
 
-**Last updated:** 2026-09-28  
-**Repo:** `local-productivity-system`  
-**Main branch HEAD:** `b6095aa`  
-**Pending merge:** `feat/product` (9 commits ahead of main, 228/228 tests pass)
+**Last updated:** 2026-09-28
+**Repository:** `local-productivity-system`
+**Submission work branch:** `docs/submission-package`
+**Verified platform:** macOS 15.6 on Apple silicon
 
----
+## Product status
 
-## What's built
+Obsidian Focus Companion is a working local-first Electron/Vue desktop app that combines task management and focus timing. SQLite stores queryable local state. The selected Obsidian vault receives human-readable task activity and focus-session Markdown.
 
-### Merged into `main`
+### Completed application capabilities
 
-#### Spike #1 — Secure Electron/Vue scaffold + Vault selection (`154a9f0`)
-- Sandboxed BrowserWindow (`nodeIntegration: false`, `contextIsolation: true`, `sandbox: true`).
-- Vault directory selection via native dialog.
-- Vault validation: readable, writable, contains `.obsidian/`.
-- Path guard: traversal rejection, symlink containment, canonicalisation.
-- Narrow `contextBridge` surface: `window.vault.select()` only.
-- Smoke test: vault keys, sandbox preferences, no `window.require`/`window.process`.
-- Stale-package artifact detection fixed (`extract-zip` override for Node 26 + Forge 7.11.2).
+- Select and validate an Obsidian vault with a native folder dialog.
+- Create, view, edit, complete, reopen, and delete tasks.
+- Persist tasks in the local SQLite database.
+- Review Inbox, Today, Completed, and Session History views.
+- Start, pause, resume, finish, and abandon task-linked focus sessions.
+- Change focus duration from 1–180 minutes.
+- Change break duration from 1–60 minutes and run a break timer.
+- Review completed and abandoned focus sessions.
+- Use a Resume Packet before a session and a Checkpoint afterward.
+- Use the optional compact floating timer window.
+- Append task creation, edit, completion, reopening, and deletion events to `Productivity/Activity.md`.
+- Append session starts, completions, and cancellations to `Productivity/Focus Logs/<task-id>.md`.
+- Include date, time, UTC offset, IANA timezone, event type, status, and relevant task/session data in durable log entries.
+- Preserve user-authored note content outside managed task-section markers.
+- Operate without remote runtime assets; the remote font import was removed.
 
-#### Spike #2 — Safe vault note read/write with sentinel markers (`c88eaa6`)
-- `window.vault.readNote(relativePath)` → `{ status, content, mtime }`.
-- `window.vault.writeSection(relativePath, newContent, mtime)` → atomic `.tmp`→rename write.
-- Sentinel format: `<!-- focus:tasks:start -->` / `<!-- focus:tasks:end -->` (invisible in Obsidian, survives user subheadings, works mid-note or at EOF).
-- Conflict detection: mtime checked before write; returns `{ status: 'conflict' }` rather than overwriting.
-- Path guard rejects `../` traversal, absolute-outside-vault, empty string, symlink escapes.
-- 129/129 tests.
+## Architecture and safety
 
-#### Docs
-- `docs/superpowers/specs/2026-09-28-electron-vue-vault-selection-design.md`
-- `docs/superpowers/specs/2026-09-28-vault-note-io-design.md`
-- `docs/superpowers/specs/2026-09-28-product-design.md`
-- `docs/superpowers/plans/2026-09-28-electron-vue-vault-selection.md`
-- `docs/superpowers/plans/2026-09-28-vault-note-io.md`
-- `docs/superpowers/plans/2026-09-28-product.md`
-- `docs/spikes/001-electron-vue-vault-selection.md`
-- `docs/spikes/002-vault-note-io.md`
+- Electron main process owns filesystem, SQLite, windows, and privileged operations.
+- Renderer runs with context isolation, sandboxing, and no Node integration.
+- Preload exposes narrow validated APIs.
+- SQLite is the authoritative query store.
+- Obsidian Markdown is the append-only human-readable history.
+- Managed task sections use `<!-- focus:tasks:start -->` and `<!-- focus:tasks:end -->` sentinels.
+- Ambiguous managed-section writes return a conflict instead of silently overwriting note content.
 
----
+## Verification state
 
-### Ready to merge — `feat/product` (9 commits, 228/228 tests)
+- Full suite at the start of submission work: **345 passing tests across 41 files**.
+- New targeted checks verify:
+  - no stylesheet requires a remote HTTP asset;
+  - a task remains present after closing and reopening an on-disk SQLite database.
+- `npm run package` and the packaged Electron smoke test passed before the final documentation pass.
+- Final full-suite, package, packaged lifecycle, and visual checks remain required after all submission changes are complete.
 
-| Commit | Delivers |
-|---|---|
-| `bad37d5` | `better-sqlite3` installed, rebuilt for Electron, migration runs, package artifact still passes |
-| `40efd0d` | `loggedTimestamp()` (all 5 PRD §9 fields); `TaskEventStore` → `task_events` SQLite + `Productivity/Activity.md` append |
-| `9732547` | Task CRUD: create/edit/complete/reopen/delete; `markdown-tasks.js` pure parser; `TaskStore` with injected deps |
-| `26dd931` | `app-handlers.js` (sender/arg guards); `window.app` bridge (15 methods); `app-schema.js` validators |
-| `7bbb884` | Navigation shell (Inbox/Today/Completed/Sessions sidebar); Inbox view with capture bar; Pinia stores; vault init flow |
-| `a4a40f7` | Today view; Completed view with client-side search filter and reopen |
-| `277563d` | `SessionStore` (start/pause/resume/abandon); Resume Packet screen (task title, project label, last checkpoint outcome/status, duration selector); Timer view (countdown → Overflow, pause/resume, abandon) |
-| `ef70d14` | `CheckpointStore`; Checkpoint form (outcome, status, conditional next action); Focus Log append per task (`Productivity/Focus Logs/<task_id>.md`); session start + abandon + completed all write durable LoggedTimestamp records |
-| `5584779` | Session History view (reverse-chron, expandable detail, date/status filters); `sessions:list` IPC handler with LEFT JOIN to checkpoints |
+## Submission evidence completed
 
-#### Session lifecycle logging (assignment requirement confirmation)
+- `PRD.md` — product requirements and acceptance criteria.
+- `CONTEXT.md` — domain glossary.
+- `docs/adr/0001-use-electron-vue.md` — Electron/Vue decision and rejected Tauri alternative.
+- `docs/research/app-landscape-report.md` — six-app competitive research, source list, classification, and custom ideas.
+- `docs/research/grill-session.md` — structured Grill evidence and decision traceability.
+- `docs/design/visual-artifact-decisions.md` — explanation of all seven files in `reference/`.
+- `DESIGN-HANDOFF.md` — implementation-ready visual and interaction specification.
+- `Anastasiia_Kovtun_3IXD_Dev5_Obsidiansample.md` — retained task and focus records from a real packaged one-minute workflow.
+- `docs/submission/Anastasiia_Kovtun_3IXD_Dev5_PRD.md` — consolidated report source with the author’s reviewed AI note and reflection.
+- `Anastasiia_Kovtun_3IXD_Dev5_PRD.PDF` — 14-page submission PDF with verified text, images, page layout, and metadata.
 
-All three session events produce durable SQLite records with full LoggedTimestamp fields:
+## Remaining submission work
 
-- **Session start** — `sessions` row inserted with `status='active'` + `started_*` timestamp the moment the user clicks Start.
-- **Session abandoned** — `status='abandoned'` + `ended_*` timestamp + one-line entry appended to Focus Log.
-- **Session completed** — `status='ended'` + `ended_*` + `actual_seconds` + `overflow_seconds`; full Checkpoint appended to Focus Log.
+1. Run final full tests, packaged smoke/lifecycle checks, visual review, and branch review.
+2. Merge into `main` only after the author approves the report and artifacts.
 
----
+## Scope boundaries
 
-## Key scope decisions and rationale
+Upcoming, Projects, Trash, and Activity views appear in the broader PRD/design direction but are not required by the assignment minimum. Task project labels, append-only Activity Markdown, and soft deletion already support the required data behavior. These extra views should not block submission unless the author chooses to complete the broader design promise.
 
-| Dropped | Reason |
-|---|---|
-| Full Projects screen with vault-note browsing/linking | Not in §30 assignment requirements; `project_label` plain-text field on each task is sufficient |
-| Onboarding wizard | Not required — vault path stored silently after first selection; no multi-step setup needed |
-| Trash view + soft-delete | Assignment doesn't require a trash bin; hard-delete keeps the codebase smaller without losing the logged `deleted` event in SQLite |
-| Activity log in-app viewer | Events still written to `Productivity/Activity.md` in the vault (readable in Obsidian); no in-app UI screen required by assignment |
-| System notifications | §27 spike item; deferred — timer Overflow is visible in-app |
-| Tray / menu-bar | §27 spike item; deferred |
-| Global shortcuts | §27 spike item; deferred |
-| Crash recovery | §27 spike item; deferred |
-| File watcher / external edit detection | §27 spike item; deferred |
-| Windows CI | §27 spike item; deferred |
-| Upcoming view | Not in §30 minimum; Today + Completed cover the required views |
-| Supporting Notes in Resume Packet | Deferred; PRD §15.2 feature, not in §30 assignment requirements |
-| Daily-note integration | Deferred; Focus Log write alone satisfies §17 |
-
----
-
-## Still required / outstanding
-
-### Immediately before submission
-
-1. **Merge `feat/product` → `main`** — 228/228 pass, whole-branch review pending.
-2. **End-to-end manual verification** — launch the packaged app, select a vault, create a task, run a focus session, complete a checkpoint, view session history. Automated tests cover units and renderer; a live smoke-run confirms wiring.
-3. **README** — no user-facing README exists. Needs: what the app does, how to install deps and run (`npm install && npm start`), how to run tests (`npm test`), platform notes (macOS arm64 verified, Windows unverified).
-4. **Session start/abandon logging to vault** — confirmed present in SQLite; verify the abandoned-session line is actually appended to the Focus Log file in a real run (covered by unit test but not e2e).
-
-### Deferred (post-deadline, if time allows)
-
-- System notifications (Overflow + Break end).
-- Tray / menu-bar / compact always-on-top timer.
-- Global shortcuts for capture and task queue.
-- Crash recovery (persist timer state across unclean quit).
-- File watcher + external edit detection and conflict resolution UI.
-- Windows CI artifact build.
-- Corrections to historical sessions.
-- Upcoming view (tasks with future start dates).
-- Supporting Notes in Resume Packet.
-- Daily-note summary integration.
-
----
-
-## Branch state
-
-```
-main          b6095aa  ← last merged (spike #2 docs + product spec/plan)
-feat/product  5584779  ← 9 tasks complete, 228/228 tests, ready to merge
-feat/todo-app          ← old scaffold branch, superseded
-feat/pomodoro-timer    ← old scaffold branch, superseded
-```
-
-Worktree: `.worktrees/product` (git-ignored, safe to delete after merge).
+Windows has not been manually tested. Dependency audit findings remain for review; no force upgrade has been applied because Electron/native dependency compatibility must be preserved.

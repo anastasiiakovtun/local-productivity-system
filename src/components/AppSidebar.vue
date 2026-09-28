@@ -1,10 +1,13 @@
 <script setup>
 import {
+  PhActivity,
   PhCalendarBlank,
+  PhCalendarDots,
   PhCheckCircle,
   PhClockCounterClockwise,
   PhHouse,
   PhSidebarSimple,
+  PhTrash,
   PhTray,
 } from '@phosphor-icons/vue';
 import ProjectCover from './ProjectCover.vue';
@@ -18,11 +21,17 @@ const props = defineProps({
 const emit = defineEmits(['navigate', 'toggle-collapse', 'select-project']);
 
 const navigation = [
-  { view: 'home', label: 'Home', icon: PhHouse, isHome: true },
-  { view: 'inbox', label: 'Inbox', icon: PhTray },
-  { view: 'today', label: 'Today', icon: PhCalendarBlank },
+  { view: 'home',     label: 'Home',     icon: PhHouse, isHome: true },
+  { view: 'inbox',    label: 'Inbox',    icon: PhTray },
+  { view: 'today',    label: 'Today',    icon: PhCalendarBlank },
+  { view: 'upcoming', label: 'Upcoming', icon: PhCalendarDots },
+];
+
+const secondaryNavigation = [
   { view: 'completed', label: 'Completed', icon: PhCheckCircle },
-  { view: 'sessions', label: 'Sessions', icon: PhClockCounterClockwise },
+  { view: 'sessions',  label: 'Sessions',  icon: PhClockCounterClockwise },
+  { view: 'activity',  label: 'Activity',  icon: PhActivity },
+  { view: 'trash',     label: 'Trash',     icon: PhTrash },
 ];
 </script>
 
@@ -39,6 +48,29 @@ const navigation = [
 
     <ul class="nav-list" role="list">
       <li v-for="item in navigation" :key="item.view">
+        <button
+          type="button"
+          class="nav-item"
+          :aria-label="item.label"
+          :aria-current="activeView === item.view ? 'page' : undefined"
+          :title="collapsed ? item.label : undefined"
+          @click="emit('navigate', item.view)"
+        >
+          <component
+            :is="item.icon"
+            :weight="activeView === item.view ? 'fill' : 'regular'"
+            :size="18"
+            aria-hidden="true"
+          />
+          <span v-if="!collapsed" class="nav-label">{{ item.label }}</span>
+        </button>
+      </li>
+    </ul>
+
+    <div class="sidebar-divider" role="separator" aria-hidden="true" />
+
+    <ul class="nav-list" role="list">
+      <li v-for="item in secondaryNavigation" :key="item.view">
         <button
           type="button"
           class="nav-item"

@@ -29,6 +29,12 @@ beforeEach(() => {
 });
 
 describe('ResumePacketView', () => {
+  it('renders inside the shared centered workflow card', async () => {
+    const w = mount(ResumePacketView, { props: { task }, global: { stubs } });
+    await flushPromises();
+    expect(w.classes()).toContain('workflow-card');
+  });
+
   it('shows task title and project label', async () => {
     const w = mount(ResumePacketView, { props: { task }, global: { stubs } });
     await flushPromises();

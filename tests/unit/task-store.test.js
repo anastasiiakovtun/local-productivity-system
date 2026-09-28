@@ -303,6 +303,24 @@ describe('TaskStore.listTasks', () => {
     expect(titles).not.toContain('Future');
   });
 
+  it('upcoming returns only open tasks with future start dates', async () => {
+    const { store } = setup();
+    await store.createTask({ title: 'Available', startDate: '2020-01-01' });
+    await store.createTask({ title: 'Future', startDate: '2099-01-01' });
+    await store.createTask({ title: 'No date' });
+
+    expect(store.listTasks({ view: 'upcoming' }).map((task) => task.title)).toEqual(['Future']);
+  });
+
+  it('trash returns only deleted tasks', async () => {
+    const { store } = setup();
+    await store.createTask({ title: 'Open' });
+    const { task } = await store.createTask({ title: 'Deleted' });
+    await store.deleteTask({ id: task.id });
+
+    expect(store.listTasks({ view: 'trash' }).map((item) => item.title)).toEqual(['Deleted']);
+  });
+
   it('completed returns only completed tasks', async () => {
     const { store } = setup();
     await store.createTask({ title: 'Open' });

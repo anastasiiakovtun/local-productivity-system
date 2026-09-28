@@ -122,6 +122,30 @@ describe('InboxView', () => {
     expect(w.emitted('focus')[0][0]).toMatchObject({ id: '^task-0', title: 'Write essay' });
   });
 
+  it('uses one icon family for all task-row actions', async () => {
+    window.app.listTasks.mockResolvedValue({ status: 'success', data: tasks('Write essay') });
+    const w = mount(InboxView);
+    await flushPromises();
+
+    for (const label of ['Complete', 'Delete', 'Edit', 'Focus']) {
+      expect(w.find(`button[aria-label="${label}"] svg`).exists()).toBe(true);
+    }
+  });
+
+  it('styles edit actions with theme buttons and icon glyphs', async () => {
+    window.app.listTasks.mockResolvedValue({ status: 'success', data: tasks('Write essay') });
+    const w = mount(InboxView);
+    await flushPromises();
+    await w.find('button[aria-label="Edit"]').trigger('click');
+
+    const save = w.find('button[aria-label="Save edit"]');
+    const cancel = w.find('button[aria-label="Cancel edit"]');
+    expect(save.classes()).toContain('btn-primary');
+    expect(cancel.classes()).toContain('btn-secondary');
+    expect(save.find('svg').exists()).toBe(true);
+    expect(cancel.find('svg').exists()).toBe(true);
+  });
+
   it('each task row shows an Edit button', async () => {
     window.app.listTasks.mockResolvedValue({ status: 'success', data: tasks('Write essay') });
     const w = mount(InboxView);

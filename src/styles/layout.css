@@ -198,6 +198,12 @@
 .sidebar-toggle { margin-top: auto; }
 .sidebar-error { margin: 0 0 var(--space-4); }
 
+.sidebar-divider {
+  height: 0.5px;
+  margin: 4px 10px;
+  background: var(--line-subtle);
+}
+
 /* ─── Main content ────────────────────────────────────── */
 .main-content {
   padding: var(--space-8);

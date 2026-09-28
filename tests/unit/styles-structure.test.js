@@ -29,8 +29,14 @@ describe('split stylesheet structure', () => {
       './workflow.css',
     ]);
     expect(createHash('sha256').update(source).digest('hex')).toBe(
-      '53132e7161023d629dad6443c3058e4c37d714af9a3495c95a1b00819167290c',
+      'd30bbedfecc2918b5578d81754f7ed7bd602cf5ecba981896f58d80a9329f97f',
     );
+  });
+
+  it('does not require remote assets when offline', async () => {
+    const { source } = await bundledSource();
+
+    expect(source).not.toMatch(/@import\s+url\(['"]?https?:\/\//);
   });
 
   it('keeps the sidebar nav button reset and pill styling', async () => {

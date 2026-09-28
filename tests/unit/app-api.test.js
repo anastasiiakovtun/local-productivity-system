@@ -7,7 +7,7 @@ describe('createAppApi', () => {
     const api = createAppApi(vi.fn());
     expect(Object.keys(api)).toEqual([
       'getPreferences', 'setPreferences',
-      'createTask', 'editTask', 'completeTask', 'reopenTask', 'deleteTask', 'listTasks',
+      'createTask', 'editTask', 'completeTask', 'reopenTask', 'deleteTask', 'listTasks', 'listTaskEvents',
       'startSession', 'pauseSession', 'resumeSession', 'abandonSession', 'abandonSessionWithOutcome',
       'openFloatingTimer', 'closeFloatingTimer', 'endSession',
       'getActiveSession', 'getLastCheckpoint',

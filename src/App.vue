@@ -6,6 +6,9 @@ import { useHomeStore } from './stores/home.js';
 import HomeView from './views/HomeView.vue';
 import InboxView from './views/InboxView.vue';
 import TodayView from './views/TodayView.vue';
+import UpcomingView from './views/UpcomingView.vue';
+import TrashView from './views/TrashView.vue';
+import ActivityView from './views/ActivityView.vue';
 import CompletedView from './views/CompletedView.vue';
 import SessionHistoryView from './views/SessionHistoryView.vue';
 import ResumePacketView from './views/ResumePacketView.vue';
@@ -20,6 +23,7 @@ const activeView = ref('home');
 const screen = ref('list');
 const focusTask = ref(null);
 const breakMinutes = ref(5);
+const breakError = ref(null);
 const sidebarCollapsed = ref(false);
 const sidebarError = ref(null);
 const floatingTimerEnabled = ref(false);
@@ -29,8 +33,11 @@ onMounted(async () => {
   if (!vault.initialized) return;
   try {
     const result = await window.app.getPreferences();
-    if (result.status === 'success') sidebarCollapsed.value = result.data.sidebarCollapsed ?? false;
-    if (result.status === 'success') floatingTimerEnabled.value = result.data.floatingTimerEnabled ?? false;
+    if (result.status === 'success') {
+      sidebarCollapsed.value = result.data.sidebarCollapsed ?? false;
+      floatingTimerEnabled.value = result.data.floatingTimerEnabled ?? false;
+      breakMinutes.value = result.data.defaultBreakMinutes ?? 5;
+    }
   } catch { /* use expanded default */ }
 });
 
@@ -73,7 +80,22 @@ async function onCheckpointSaved() {
   } catch { /* use default */ }
   screen.value = 'break-offer';
 }
-function onTakeBreak() { screen.value = 'break'; }
+async function onTakeBreak() {
+  breakError.value = null;
+  const minutes = Number(breakMinutes.value);
+  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 60) {
+    breakError.value = 'Break duration must be between 1 and 60 minutes.';
+    return;
+  }
+  try {
+    const result = await window.app.setPreferences({ defaultBreakMinutes: minutes });
+    if (result.status !== 'success') throw new Error(result.reason);
+    breakMinutes.value = minutes;
+    screen.value = 'break';
+  } catch {
+    breakError.value = 'Could not save break duration.';
+  }
+}
 function onFinishFlow() { screen.value = 'list'; focusTask.value = null; }
 
 async function onMinimizeTimer() {
@@ -123,10 +145,25 @@ async function onMinimizeTimer() {
     </template>
 
     <template v-else-if="screen === 'break-offer'">
-      <div class="break-offer">
+      <div class="break-offer workflow-card">
         <h2>Session complete</h2>
         <p>Take a break before your next session?</p>
-        <div style="display:flex;gap:10px">
+        <label class="break-duration-label" for="break-duration">Break duration</label>
+        <div class="duration-row">
+          <input
+            id="break-duration"
+            v-model.number="breakMinutes"
+            class="duration-input"
+            type="number"
+            min="1"
+            max="60"
+            step="1"
+            aria-label="Break duration in minutes"
+          >
+          <span>minutes</span>
+        </div>
+        <p v-if="breakError" role="alert" class="error">{{ breakError }}</p>
+        <div class="break-offer-actions">
           <button type="button" class="btn-primary" aria-label="Take Break" @click="onTakeBreak">Take Break</button>
           <button type="button" class="btn-secondary" aria-label="Skip break" @click="onFinishFlow">Done</button>
         </div>
@@ -153,6 +190,9 @@ async function onMinimizeTimer() {
         <InboxView     v-else-if="activeView === 'inbox'"     @focus="onFocus" />
         <TodayView     v-else-if="activeView === 'today'"     @focus="onFocus" />
         <CompletedView v-else-if="activeView === 'completed'" />
+        <UpcomingView  v-else-if="activeView === 'upcoming'" />
+        <TrashView     v-else-if="activeView === 'trash'" />
+        <ActivityView  v-else-if="activeView === 'activity'" />
         <SessionHistoryView v-else-if="activeView === 'sessions'" />
       </main>
     </template>

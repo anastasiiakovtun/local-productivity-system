@@ -1,3 +1,6 @@
+import { mkdtemp, rm } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { openDatabase } from '../../src/main/db.js';
 
@@ -54,6 +57,37 @@ describe('openDatabase', () => {
     expect(row.created_utc_offset).toBe('+02:00');
     expect(row.created_timezone).toBe('Europe/Berlin');
     db.close();
+  });
+
+  it('keeps tasks after closing and reopening the on-disk database', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'focus-db-'));
+    const dbPath = path.join(directory, 'focus.db');
+
+    try {
+      const first = openDatabase(dbPath);
+      first.prepare(`
+        INSERT INTO tasks (
+          id, title, status,
+          created_local_date, created_local_time, created_utc_offset,
+          created_timezone, created_occurred_at_utc,
+          updated_local_date, updated_local_time, updated_utc_offset,
+          updated_timezone, updated_occurred_at_utc
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+      `).run(
+        '^task-persisted', 'Persistent task', 'open',
+        '2026-09-28', '14:32:00', '+02:00', 'Europe/Berlin', '2026-09-28T12:32:00Z',
+        '2026-09-28', '14:32:00', '+02:00', 'Europe/Berlin', '2026-09-28T12:32:00Z',
+      );
+      first.close();
+
+      const reopened = openDatabase(dbPath);
+      expect(reopened.prepare('SELECT title FROM tasks WHERE id = ?').get('^task-persisted')).toEqual({
+        title: 'Persistent task',
+      });
+      reopened.close();
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 
   it('migration is idempotent — running twice does not throw', () => {

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { PhPlus, PhTray } from '@phosphor-icons/vue';
+import { PhCheck, PhFloppyDisk, PhPencil, PhPlay, PhPlus, PhTray, PhX } from '@phosphor-icons/vue';
 import IconContainer from '../components/IconContainer.vue';
 import { useTaskStore } from '../stores/tasks.js';
 
@@ -103,16 +103,22 @@ async function saveEdit() {
           <input type="text" aria-label="Edit title" v-model="editTitle" class="capture-title" />
           <input type="text" aria-label="Edit project" v-model="editProject" class="capture-project" placeholder="Project (optional)" />
           <p v-if="editError" role="alert" class="error">{{ editError }}</p>
-          <button type="button" aria-label="Save edit" :disabled="!editTitle.trim() || editSaving" @click="saveEdit">Save</button>
-          <button type="button" aria-label="Cancel edit" @click="cancelEdit">Cancel</button>
+          <button type="button" class="btn-primary edit-action" aria-label="Save edit" :disabled="!editTitle.trim() || editSaving" @click="saveEdit">
+            <PhFloppyDisk :size="15" aria-hidden="true" />
+            <span>Save</span>
+          </button>
+          <button type="button" class="btn-secondary edit-action" aria-label="Cancel edit" @click="cancelEdit">
+            <PhX :size="15" aria-hidden="true" />
+            <span>Cancel</span>
+          </button>
         </template>
         <template v-else>
           <span class="task-title">{{ task.title }}</span>
           <span v-if="task.project_label" class="task-project">[{{ task.project_label }}]</span>
-          <button type="button" class="btn-icon" aria-label="Complete" @click="complete(task.id)">✓</button>
-          <button type="button" class="btn-icon btn-delete" aria-label="Delete" @click="remove(task.id)">✕</button>
-          <button type="button" class="btn-icon" aria-label="Edit" @click="startEdit(task)">✎</button>
-          <button type="button" class="btn-icon" aria-label="Focus" @click="emit('focus', task)">▶</button>
+          <button type="button" class="btn-icon" aria-label="Complete" @click="complete(task.id)"><PhCheck :size="16" aria-hidden="true" /></button>
+          <button type="button" class="btn-icon btn-delete" aria-label="Delete" @click="remove(task.id)"><PhX :size="16" aria-hidden="true" /></button>
+          <button type="button" class="btn-icon" aria-label="Edit" @click="startEdit(task)"><PhPencil :size="16" aria-hidden="true" /></button>
+          <button type="button" class="btn-icon" aria-label="Focus" @click="emit('focus', task)"><PhPlay :size="16" aria-hidden="true" /></button>
         </template>
       </li>
     </ul>

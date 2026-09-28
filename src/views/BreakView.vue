@@ -35,7 +35,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="break-view">
+  <div class="break-view workflow-card">
     <h2>Break</h2>
 
     <div v-if="!completed">

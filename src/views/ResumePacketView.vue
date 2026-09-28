@@ -60,7 +60,7 @@ async function saveNotes() {
 </script>
 
 <template>
-  <div class="resume-packet">
+  <div class="resume-packet workflow-card">
     <!-- Header: project cover + task identity -->
     <div class="rp-identity">
       <ProjectCover :project-label="task.project_label" :color="null" :size="48" />

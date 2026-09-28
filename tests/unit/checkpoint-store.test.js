@@ -94,6 +94,22 @@ describe('CheckpointStore.saveCheckpoint', () => {
     expect(content).toContain('Finish methods section.');
   });
 
+  it('writes every required completed-session event field', async () => {
+    const s = startSession();
+    await checkpointStore.saveCheckpoint(validCheckpoint(s.session_id));
+    const content = await readFile(
+      path.join(vaultRoot, 'Productivity', 'Focus Logs', 'task-abc.md'),
+      'utf8',
+    );
+    expect(content).toContain('**Date:** 2026-09-28');
+    expect(content).toContain('**Time:** 15:00:00');
+    expect(content).toContain('**UTC offset:** +02:00');
+    expect(content).toContain('**Timezone:** Europe/Berlin');
+    expect(content).toContain('**Event:** session_completed');
+    expect(content).toContain('**Status:** continue');
+    expect(content).toContain('**Task:** Write essay (`^task-abc`)');
+  });
+
   it('returns validation error for empty outcome', async () => {
     const s = startSession();
     const r = await checkpointStore.saveCheckpoint({ ...validCheckpoint(s.session_id), outcome: '' });
@@ -156,5 +172,38 @@ describe('CheckpointStore.writeAbandonLog with optional outcome', () => {
     const logPath = path.join(vaultRoot, 'Productivity', 'Focus Logs', 'task-abc.md');
     const content = await readFile(logPath, 'utf8');
     expect(content).not.toContain('**Outcome:**');
+  });
+
+  it('writes cancellation event and complete timestamp fields', async () => {
+    const s = startSession();
+    sessionStore.abandonSession(s.session_id);
+    await checkpointStore.writeAbandonLog(s.session_id);
+    const content = await readFile(
+      path.join(vaultRoot, 'Productivity', 'Focus Logs', 'task-abc.md'),
+      'utf8',
+    );
+    expect(content).toContain('**Event:** session_cancelled');
+    expect(content).toContain('**Status:** abandoned');
+    expect(content).toContain('**UTC offset:** +02:00');
+    expect(content).toContain('**Timezone:** Europe/Berlin');
+  });
+});
+
+describe('CheckpointStore.writeSessionStartLog', () => {
+  it('appends a complete session-start event', async () => {
+    const s = startSession();
+    await checkpointStore.writeSessionStartLog(s);
+    const content = await readFile(
+      path.join(vaultRoot, 'Productivity', 'Focus Logs', 'task-abc.md'),
+      'utf8',
+    );
+    expect(content).toContain('**Date:** 2026-09-28');
+    expect(content).toContain('**Time:** 15:00:00');
+    expect(content).toContain('**UTC offset:** +02:00');
+    expect(content).toContain('**Timezone:** Europe/Berlin');
+    expect(content).toContain('**Event:** session_started');
+    expect(content).toContain('**Status:** active');
+    expect(content).toContain('**Task:** Write essay (`^task-abc`)');
+    expect(content).toContain('**Planned:** 25 min');
   });
 });

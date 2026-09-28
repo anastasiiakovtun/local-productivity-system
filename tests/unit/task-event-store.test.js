@@ -62,16 +62,26 @@ describe('TaskEventStore', () => {
     await store.appendEvent(baseEvent());
     await store.appendEvent({ ...baseEvent(), event_type: 'completed', task_title: 'Write essay' });
     const content = await readFile(path.join(vaultRoot, 'Productivity', 'Activity.md'), 'utf8');
-    const lines = content.trim().split('\n');
-    expect(lines).toHaveLength(2);
+    expect(content.match(/^## Task event$/gm)).toHaveLength(2);
   });
 
-  it('appended line contains event_type and task_title', async () => {
+  it('appends every required Obsidian event field', async () => {
     const store = new TaskEventStore(db, () => vaultRoot);
-    await store.appendEvent(baseEvent());
+    await store.appendEvent({
+      ...baseEvent(),
+      project_label: 'Thesis',
+      changed_fields: { title: { from: 'Plan essay', to: 'Write essay' } },
+    });
     const content = await readFile(path.join(vaultRoot, 'Productivity', 'Activity.md'), 'utf8');
-    expect(content).toContain('created');
-    expect(content).toContain('Write essay');
+    expect(content).toContain('**Date:** 2026-09-28');
+    expect(content).toContain('**Time:** 14:32:00');
+    expect(content).toContain('**UTC offset:** +02:00');
+    expect(content).toContain('**Timezone:** Europe/Berlin');
+    expect(content).toContain('**Event:** task_created');
+    expect(content).toContain('**Status:** open');
+    expect(content).toContain('**Task:** Write essay (`^task-abc123`)');
+    expect(content).toContain('**Project:** Thesis');
+    expect(content).toContain('**Changes:**');
   });
 
   it('stores changed_fields as JSON string', async () => {

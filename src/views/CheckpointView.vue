@@ -48,7 +48,7 @@ async function submit() {
 </script>
 
 <template>
-  <div class="checkpoint-view">
+  <div class="checkpoint-view workflow-card">
     <h2>Checkpoint</h2>
 
     <div class="form-group">
@@ -59,7 +59,7 @@ async function submit() {
     <div class="form-group">
       <label>Status <span style="color:#f87171">*</span></label>
       <div class="status-options">
-        <label v-for="s in statuses" :key="s" class="status-option">
+        <label v-for="s in statuses" :key="s" class="status-option" :class="`status-option--${s}`">
           <input type="radio" v-model="status" :value="s" :name="`cp-status-${s}`" />
           <span>{{ s }}</span>
         </label>
@@ -71,7 +71,7 @@ async function submit() {
       <input id="cp-next-action" v-model="nextAction" type="text" placeholder="What is the next concrete step?" />
     </div>
 
-    <div class="form-group">
+    <div class="form-group" data-blocker-group :class="{ 'has-blocker': blocker.trim() }">
       <label for="cp-blocker">Blocker (optional)</label>
       <input id="cp-blocker" v-model="blocker" type="text" placeholder="What is blocking progress?" />
     </div>
