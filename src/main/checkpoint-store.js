@@ -6,9 +6,9 @@ const defaultFsApi = { mkdir, appendFile };
 const VALID_STATUSES = new Set(['continue', 'blocked', 'completed', 'abandoned']);
 
 export class CheckpointStore {
-  constructor(db, vaultRoot, fsApi = defaultFsApi) {
+  constructor(db, getVaultRoot, fsApi = defaultFsApi) {
     this._db = db;
-    this._vaultRoot = vaultRoot;
+    this._getVaultRoot = getVaultRoot;
     this._fsApi = fsApi;
 
     this._insert = db.prepare(`
@@ -52,6 +52,10 @@ export class CheckpointStore {
   async saveCheckpoint({ sessionId, taskId, projectLabel = null, outcome, status, nextAction = null, blocker = null, ts, actualSeconds, overflowSeconds = 0 }) {
     const validErr = this.validate({ outcome, status, nextAction });
     if (validErr) return { status: 'error', reason: validErr };
+    const vaultRoot = this._getVaultRoot?.();
+    if (typeof vaultRoot !== 'string' || vaultRoot.length === 0) {
+      throw new Error('vault-not-selected');
+    }
 
     const checkpoint_id = crypto.randomUUID();
 
@@ -73,14 +77,14 @@ export class CheckpointStore {
 
     // Append to Focus Log
     const session = this._getSession.get(sessionId);
-    await this._appendToFocusLog(session, { outcome, status, nextAction, ts, actualSeconds, overflowSeconds });
+    await this._appendToFocusLog(vaultRoot, session, { outcome, status, nextAction, ts, actualSeconds, overflowSeconds });
 
     return { status: 'success', checkpoint_id };
   }
 
-  async _appendToFocusLog(session, { outcome, status, nextAction, ts, actualSeconds, overflowSeconds }) {
+  async _appendToFocusLog(vaultRoot, session, { outcome, status, nextAction, ts, actualSeconds, overflowSeconds }) {
     if (!session) return;
-    const logDir = path.join(this._vaultRoot, 'Productivity', 'Focus Logs');
+    const logDir = path.join(vaultRoot, 'Productivity', 'Focus Logs');
     const logPath = path.join(logDir, `${session.task_id.replace('^', '')}.md`);
     await this._fsApi.mkdir(logDir, { recursive: true });
 

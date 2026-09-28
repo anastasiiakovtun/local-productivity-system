@@ -10,19 +10,17 @@ function makeInboxContent(inner = '') {
   return `# Inbox\n\n${START}\n${inner}${END}\n`;
 }
 
-function setup({ inboxContent = makeInboxContent() } = {}) {
+function setup({ inboxContent = makeInboxContent(), missingInbox = false, getVaultRoot, eventStore: eventStoreOverride } = {}) {
   const db = openDatabase(':memory:');
   const vaultRoot = '/fake/vault';
 
   // Track write calls
-  let currentContent = inboxContent;
+  let currentContent = missingInbox ? null : inboxContent;
   let currentMtime = 1000;
 
-  const readNote = vi.fn(async () => ({
-    status: 'success',
-    content: currentContent,
-    mtime: currentMtime,
-  }));
+  const readNote = vi.fn(async () => currentContent === null
+    ? { status: 'error', reason: 'not-found' }
+    : { status: 'success', content: currentContent, mtime: currentMtime });
 
   const writeSection = vi.fn(async (notePath, inner, mtime) => {
     // Reconstruct full content from split
@@ -36,7 +34,7 @@ function setup({ inboxContent = makeInboxContent() } = {}) {
   });
 
   const appendEvent = vi.fn(async () => crypto.randomUUID());
-  const eventStore = { appendEvent };
+  const eventStore = eventStoreOverride ?? { appendEvent };
 
   const ts = vi.fn(() => ({
     local_date: '2026-09-28', local_time: '14:32:00',
@@ -44,10 +42,16 @@ function setup({ inboxContent = makeInboxContent() } = {}) {
     occurred_at_utc: '2026-09-28T12:32:00Z',
   }));
 
-  const fsApi = { mkdir: vi.fn(async () => {}) };
+  const fsApi = {
+    mkdir: vi.fn(async () => {}),
+    writeFile: vi.fn(async (_notePath, content) => {
+      currentContent = content;
+      currentMtime += 1;
+    }),
+  };
 
   const store = new TaskStore({
-    db, eventStore, vaultRoot,
+    db, eventStore, getVaultRoot: getVaultRoot ?? (() => vaultRoot),
     readNote, writeSection,
     loggedTimestamp: ts,
     fsApi,
@@ -57,6 +61,85 @@ function setup({ inboxContent = makeInboxContent() } = {}) {
 }
 
 describe('TaskStore.createTask', () => {
+  it('resolves the latest vault root before filesystem work', async () => {
+    let vaultRoot = '/old/vault';
+    const { store, writeSection } = setup({ getVaultRoot: () => vaultRoot });
+    vaultRoot = '/new/vault';
+
+    await store.createTask({ title: 'Write essay' });
+
+    expect(writeSection).toHaveBeenCalledWith(
+      '/new/vault/Productivity/Inbox.md',
+      expect.any(String),
+      expect.any(Number),
+    );
+  });
+
+  it('returns a controlled error when no vault is selected', async () => {
+    const { store } = setup({ getVaultRoot: () => '' });
+    await expect(store.createTask({ title: 'Write essay' })).rejects.toThrow('vault-not-selected');
+  });
+
+  it('rolls back the task when the Inbox write fails', async () => {
+    const { store, db, writeSection } = setup();
+    writeSection.mockRejectedValueOnce(new Error('disk full'));
+
+    await expect(store.createTask({ title: 'Write essay' })).rejects.toThrow('disk full');
+
+    expect(db.prepare('SELECT * FROM tasks').all()).toHaveLength(0);
+    expect(db.prepare('SELECT * FROM task_events').all()).toHaveLength(0);
+  });
+
+  it('rolls back when writeSection returns an error status', async () => {
+    const { store, db, writeSection } = setup();
+    writeSection.mockResolvedValueOnce({ status: 'error', reason: 'not-writable' });
+
+    await expect(store.createTask({ title: 'Write essay' })).rejects.toThrow('not-writable');
+
+    expect(db.prepare('SELECT * FROM tasks').all()).toHaveLength(0);
+    expect(db.prepare('SELECT * FROM task_events').all()).toHaveLength(0);
+  });
+
+  it('creates a missing Inbox with managed-section sentinels', async () => {
+    const { store, getContent } = setup({ missingInbox: true });
+
+    await store.createTask({ title: 'Write essay' });
+
+    expect(getContent()).toContain(START);
+    expect(getContent()).toContain('- [ ] Write essay');
+    expect(getContent()).toContain(END);
+  });
+
+  it('restores the original Inbox and rolls back rows when event logging fails', async () => {
+    const original = makeInboxContent('- [ ] Existing ^task-existing\n');
+    let db;
+    const eventStore = {
+      appendEvent: vi.fn(async (event) => {
+        db.prepare(`
+          INSERT INTO task_events (
+            event_id, event_type, task_id, task_title, project_label,
+            changed_fields, source, local_date, local_time, utc_offset,
+            timezone, occurred_at_utc
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          crypto.randomUUID(), event.event_type, event.task_id, event.task_title,
+          event.project_label, null, event.source, event.local_date,
+          event.local_time, event.utc_offset, event.timezone, event.occurred_at_utc,
+        );
+        throw new Error('activity write failed');
+      }),
+    };
+    const result = setup({ inboxContent: original, eventStore });
+    ({ db } = result);
+
+    await expect(result.store.createTask({ title: 'Write essay' }))
+      .rejects.toThrow('activity write failed');
+
+    expect(result.getContent()).toBe(original);
+    expect(db.prepare('SELECT * FROM tasks').all()).toHaveLength(0);
+    expect(db.prepare('SELECT * FROM task_events').all()).toHaveLength(0);
+  });
+
   it('inserts a row into tasks table', async () => {
     const { store, db } = setup();
     await store.createTask({ title: 'Write essay' });

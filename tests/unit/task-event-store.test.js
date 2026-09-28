@@ -31,7 +31,7 @@ const baseEvent = () => ({
 
 describe('TaskEventStore', () => {
   it('appendEvent inserts a row retrievable by event_id', async () => {
-    const store = new TaskEventStore(db, vaultRoot);
+    const store = new TaskEventStore(db, () => vaultRoot);
     const event_id = await store.appendEvent(baseEvent());
     const row = db.prepare('SELECT * FROM task_events WHERE event_id = ?').get(event_id);
     expect(row).toBeTruthy();
@@ -40,7 +40,7 @@ describe('TaskEventStore', () => {
   });
 
   it('all five timestamp fields are on the inserted row', async () => {
-    const store = new TaskEventStore(db, vaultRoot);
+    const store = new TaskEventStore(db, () => vaultRoot);
     const event_id = await store.appendEvent(baseEvent());
     const row = db.prepare('SELECT * FROM task_events WHERE event_id = ?').get(event_id);
     expect(row.local_date).toBe('2026-09-28');
@@ -51,14 +51,14 @@ describe('TaskEventStore', () => {
   });
 
   it('creates Activity.md when absent', async () => {
-    const store = new TaskEventStore(db, vaultRoot);
+    const store = new TaskEventStore(db, () => vaultRoot);
     await store.appendEvent(baseEvent());
     const content = await readFile(path.join(vaultRoot, 'Productivity', 'Activity.md'), 'utf8');
     expect(content).toBeTruthy();
   });
 
   it('appends on second call — does not overwrite', async () => {
-    const store = new TaskEventStore(db, vaultRoot);
+    const store = new TaskEventStore(db, () => vaultRoot);
     await store.appendEvent(baseEvent());
     await store.appendEvent({ ...baseEvent(), event_type: 'completed', task_title: 'Write essay' });
     const content = await readFile(path.join(vaultRoot, 'Productivity', 'Activity.md'), 'utf8');
@@ -67,7 +67,7 @@ describe('TaskEventStore', () => {
   });
 
   it('appended line contains event_type and task_title', async () => {
-    const store = new TaskEventStore(db, vaultRoot);
+    const store = new TaskEventStore(db, () => vaultRoot);
     await store.appendEvent(baseEvent());
     const content = await readFile(path.join(vaultRoot, 'Productivity', 'Activity.md'), 'utf8');
     expect(content).toContain('created');
@@ -75,7 +75,7 @@ describe('TaskEventStore', () => {
   });
 
   it('stores changed_fields as JSON string', async () => {
-    const store = new TaskEventStore(db, vaultRoot);
+    const store = new TaskEventStore(db, () => vaultRoot);
     const event_id = await store.appendEvent({
       ...baseEvent(),
       event_type: 'edited',
@@ -83,5 +83,23 @@ describe('TaskEventStore', () => {
     });
     const row = db.prepare('SELECT * FROM task_events WHERE event_id = ?').get(event_id);
     expect(JSON.parse(row.changed_fields)).toEqual({ title: { from: 'Old', to: 'New' } });
+  });
+
+  it('resolves the latest vault root before appending Activity.md', async () => {
+    const secondRoot = await mkdtemp(path.join(os.tmpdir(), 'focus-events-latest-'));
+    let currentRoot = vaultRoot;
+    const store = new TaskEventStore(db, () => currentRoot);
+    currentRoot = secondRoot;
+
+    await store.appendEvent(baseEvent());
+
+    const content = await readFile(path.join(secondRoot, 'Productivity', 'Activity.md'), 'utf8');
+    expect(content).toContain('Write essay');
+    await rm(secondRoot, { recursive: true, force: true });
+  });
+
+  it('throws a controlled error when no vault is selected', async () => {
+    const store = new TaskEventStore(db, () => null);
+    await expect(store.appendEvent(baseEvent())).rejects.toThrow('vault-not-selected');
   });
 });

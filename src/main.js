@@ -48,15 +48,11 @@ app.whenReady().then(() => {
   const dbPath = path.join(app.getPath('userData'), 'focus.db');
   const db = openDatabase(dbPath);
 
-  const eventStore     = new TaskEventStore(db, () => vaultRoot ?? '');
-  const taskStore      = new TaskStore({ db, eventStore, vaultRoot: null, readNote, writeSection,
-    get vaultRoot() { return vaultRoot; },
-  });
+  const getVaultRoot = () => vaultRoot;
+  const eventStore     = new TaskEventStore(db, getVaultRoot);
+  const taskStore      = new TaskStore({ db, eventStore, getVaultRoot, readNote, writeSection });
   const sessionStore   = new SessionStore(db);
-  const checkpointStore = new CheckpointStore(db, () => vaultRoot ?? '');
-
-  // Patch TaskStore to use live vaultRoot
-  taskStore._vaultRoot = new Proxy({}, { get: () => vaultRoot });
+  const checkpointStore = new CheckpointStore(db, getVaultRoot);
 
   registerVaultSelectionHandler({
     ipcMain, dialog,

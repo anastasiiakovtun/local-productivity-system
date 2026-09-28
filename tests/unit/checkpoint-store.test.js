@@ -18,7 +18,7 @@ beforeEach(async () => {
   db = openDatabase(':memory:');
   vaultRoot = await mkdtemp(path.join(os.tmpdir(), 'focus-cp-'));
   sessionStore = new SessionStore(db, fixedTs);
-  checkpointStore = new CheckpointStore(db, vaultRoot);
+  checkpointStore = new CheckpointStore(db, () => vaultRoot);
 });
 
 afterEach(async () => {
@@ -104,5 +104,29 @@ describe('CheckpointStore.saveCheckpoint', () => {
     const s = startSession();
     const r = await checkpointStore.saveCheckpoint({ ...validCheckpoint(s.session_id), nextAction: '' });
     expect(r.status).toBe('error');
+  });
+
+  it('resolves the latest vault root before writing the Focus Log', async () => {
+    const nextRoot = await mkdtemp(path.join(os.tmpdir(), 'focus-cp-latest-'));
+    let currentRoot = vaultRoot;
+    checkpointStore = new CheckpointStore(db, () => currentRoot);
+    const s = startSession();
+    currentRoot = nextRoot;
+
+    await checkpointStore.saveCheckpoint(validCheckpoint(s.session_id));
+
+    const content = await readFile(
+      path.join(nextRoot, 'Productivity', 'Focus Logs', 'task-abc.md'),
+      'utf8',
+    );
+    expect(content).toContain('Drafted introduction.');
+    await rm(nextRoot, { recursive: true, force: true });
+  });
+
+  it('throws a controlled error when no vault is selected', async () => {
+    checkpointStore = new CheckpointStore(db, () => undefined);
+    const s = startSession();
+    await expect(checkpointStore.saveCheckpoint(validCheckpoint(s.session_id)))
+      .rejects.toThrow('vault-not-selected');
   });
 });

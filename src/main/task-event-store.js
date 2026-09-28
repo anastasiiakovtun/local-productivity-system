@@ -4,9 +4,9 @@ import path from 'node:path';
 const defaultFsApi = { mkdir, appendFile };
 
 export class TaskEventStore {
-  constructor(db, vaultRoot, fsApi = defaultFsApi) {
+  constructor(db, getVaultRoot, fsApi = defaultFsApi) {
     this._db = db;
-    this._vaultRoot = vaultRoot;
+    this._getVaultRoot = getVaultRoot;
     this._fsApi = fsApi;
 
     this._insert = db.prepare(`
@@ -35,6 +35,10 @@ export class TaskEventStore {
     timezone,
     occurred_at_utc,
   }) {
+    const vaultRoot = this._getVaultRoot?.();
+    if (typeof vaultRoot !== 'string' || vaultRoot.length === 0) {
+      throw new Error('vault-not-selected');
+    }
     const event_id = crypto.randomUUID();
 
     this._insert.run({
@@ -53,7 +57,7 @@ export class TaskEventStore {
     });
 
     // Append human-readable line to Activity.md
-    const activityDir = path.join(this._vaultRoot, 'Productivity');
+    const activityDir = path.join(vaultRoot, 'Productivity');
     const activityPath = path.join(activityDir, 'Activity.md');
     await this._fsApi.mkdir(activityDir, { recursive: true });
     await this._fsApi.appendFile(

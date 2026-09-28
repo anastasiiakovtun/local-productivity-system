@@ -1,4 +1,4 @@
-import { mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { generateTaskId } from './task-id.js';
 import { loggedTimestamp as defaultLoggedTimestamp } from './logged-timestamp.js';
@@ -20,14 +20,15 @@ function ensureSentinels(content) {
 }
 
 export class TaskStore {
-  constructor({ db, eventStore, vaultRoot, readNote, writeSection, loggedTimestamp, fsApi } = {}) {
+  constructor({ db, eventStore, getVaultRoot, readNote, writeSection, loggedTimestamp, fsApi } = {}) {
     this._db = db;
     this._eventStore = eventStore;
-    this._vaultRoot = vaultRoot;
+    this._getVaultRoot = getVaultRoot;
     this._readNote = readNote;
     this._writeSection = writeSection;
     this._ts = loggedTimestamp ?? defaultLoggedTimestamp;
     this._mkdir = fsApi?.mkdir ?? mkdir;
+    this._writeFile = fsApi?.writeFile ?? writeFile;
 
     this._insertTask = db.prepare(`
       INSERT INTO tasks (
@@ -64,48 +65,77 @@ export class TaskStore {
     return this._db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
   }
 
+  _resolveVaultRoot() {
+    const vaultRoot = this._getVaultRoot?.();
+    if (typeof vaultRoot !== 'string' || vaultRoot.length === 0) {
+      throw new Error('vault-not-selected');
+    }
+    return vaultRoot;
+  }
+
   _inboxPath() {
-    return path.join(this._vaultRoot, 'Productivity', 'Inbox.md');
+    return path.join(this._resolveVaultRoot(), 'Productivity', 'Inbox.md');
   }
 
   async _ensureInbox() {
-    const dir = path.join(this._vaultRoot, 'Productivity');
+    const dir = path.join(this._resolveVaultRoot(), 'Productivity');
     await this._mkdir(dir, { recursive: true });
     const notePath = this._inboxPath();
     // Read or create
     let read = await this._readNote(notePath);
-    if (read.status === 'not-found' || read.status === 'error') {
-      // Bootstrap empty file with sentinels
-      await this._writeSection(notePath, '', 0, { createIfMissing: true });
+    if (read.status === 'error' && read.reason === 'not-found') {
+      await this._writeFile(notePath, `# Inbox\n\n${START_SENTINEL}\n${END_SENTINEL}\n`, 'utf8');
       read = await this._readNote(notePath);
     }
+    if (read.status !== 'success') throw new Error(read.reason ?? 'inbox-not-readable');
     return { notePath, content: read.content, mtime: read.mtime };
   }
 
   async createTask({ title, projectLabel = null, startDate = null, dueDate = null, estimateMinutes = null }) {
     const id = generateTaskId();
     const ts = this._ts();
+    let inboxState = null;
 
-    this._insertTask.run({
-      id, title, status: 'open',
-      project_label: projectLabel, start_date: startDate,
-      due_date: dueDate, estimate_minutes: estimateMinutes,
-      ...ts,
-    });
+    this._db.exec('BEGIN');
+    try {
+      this._insertTask.run({
+        id, title, status: 'open',
+        project_label: projectLabel, start_date: startDate,
+        due_date: dueDate, estimate_minutes: estimateMinutes,
+        ...ts,
+      });
 
-    const { notePath, content, mtime } = await this._ensureInbox();
-    const normalized = ensureSentinels(content);
-    const split = splitSection(normalized);
-    const newLine = formatTaskLine({ title, id, done: false });
-    const newInner = insertTaskLine(split.inner, newLine);
-    await this._writeSection(notePath, newInner, mtime);
+      const { notePath, content, mtime } = await this._ensureInbox();
+      const normalized = ensureSentinels(content);
+      const split = splitSection(normalized);
+      inboxState = { notePath, inner: split.inner, mtime };
+      const newLine = formatTaskLine({ title, id, done: false });
+      const newInner = insertTaskLine(split.inner, newLine);
+      const writeResult = await this._writeSection(notePath, newInner, mtime);
+      if (writeResult?.status !== 'success') {
+        throw new Error(writeResult?.reason ?? writeResult?.status ?? 'inbox-write-failed');
+      }
 
-    await this._eventStore.appendEvent({
-      event_type: 'created', task_id: id, task_title: title,
-      project_label: projectLabel, source: 'app', ...ts,
-    });
+      await this._eventStore.appendEvent({
+        event_type: 'created', task_id: id, task_title: title,
+        project_label: projectLabel, source: 'app', ...ts,
+      });
 
-    return { status: 'success', task: this._getTask(id) };
+      this._db.exec('COMMIT');
+      return { status: 'success', task: this._getTask(id) };
+    } catch (error) {
+      if (this._db.inTransaction) this._db.exec('ROLLBACK');
+      if (inboxState) {
+        try {
+          const current = await this._readNote(inboxState.notePath);
+          const restoreMtime = current.status === 'success' ? current.mtime : inboxState.mtime;
+          await this._writeSection(inboxState.notePath, inboxState.inner, restoreMtime);
+        } catch {
+          // Preserve the operation error; the caller must report the failed create.
+        }
+      }
+      throw error;
+    }
   }
 
   async editTask({ id, changes }) {
