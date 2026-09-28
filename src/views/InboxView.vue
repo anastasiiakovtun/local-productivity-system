@@ -1,5 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { PhPlus, PhTray } from '@phosphor-icons/vue';
+import IconContainer from '../components/IconContainer.vue';
 import { useTaskStore } from '../stores/tasks.js';
 
 const taskStore = useTaskStore();
@@ -87,7 +89,10 @@ async function saveEdit() {
         placeholder="Project (optional)"
         aria-label="Project label"
       />
-      <button type="submit" :disabled="!newTitle.trim()">Add</button>
+      <button type="submit" class="btn-primary capture-add" :disabled="!newTitle.trim()">
+        <PhPlus :size="16" weight="regular" aria-hidden="true" />
+        <span>Add</span>
+      </button>
     </form>
 
     <p v-if="error" role="alert" class="error">{{ error }}</p>
@@ -111,6 +116,9 @@ async function saveEdit() {
         </template>
       </li>
     </ul>
-    <p v-else class="empty-state">No tasks in Inbox.</p>
+    <div v-else class="empty-state">
+      <IconContainer><PhTray :size="24" aria-hidden="true" /></IconContainer>
+      <p>No tasks in Inbox.</p>
+    </div>
   </div>
 </template>

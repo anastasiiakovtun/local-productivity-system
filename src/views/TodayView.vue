@@ -1,5 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { PhCalendarBlank } from '@phosphor-icons/vue';
+import IconContainer from '../components/IconContainer.vue';
 import { useTaskStore } from '../stores/tasks.js';
 
 const taskStore = useTaskStore();
@@ -25,6 +27,9 @@ const filtered = () => taskStore.today.filter(t =>
         <button type="button" class="btn-icon" aria-label="Focus" @click="emit('focus', task)">▶</button>
       </li>
     </ul>
-    <p v-else class="empty-state">No tasks due today.</p>
+    <div v-else class="empty-state">
+      <IconContainer><PhCalendarBlank :size="24" aria-hidden="true" /></IconContainer>
+      <p>No tasks due today.</p>
+    </div>
   </div>
 </template>

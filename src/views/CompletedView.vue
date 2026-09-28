@@ -1,5 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { PhCheckCircle } from '@phosphor-icons/vue';
+import IconContainer from '../components/IconContainer.vue';
 import { useTaskStore } from '../stores/tasks.js';
 
 const taskStore = useTaskStore();
@@ -25,6 +27,9 @@ const filtered = computed(() =>
         <button type="button" class="btn-icon" aria-label="Reopen" @click="taskStore.reopenTask(task.id)">↩</button>
       </li>
     </ul>
-    <p v-else class="empty-state">No completed tasks.</p>
+    <div v-else class="empty-state">
+      <IconContainer><PhCheckCircle :size="24" aria-hidden="true" /></IconContainer>
+      <p>No completed tasks.</p>
+    </div>
   </div>
 </template>

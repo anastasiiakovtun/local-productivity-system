@@ -53,6 +53,7 @@ describe('SessionHistoryView', () => {
     const w = mount(SessionHistoryView);
     await flushPromises();
     expect(w.find('.empty-state').exists()).toBe(true);
+    expect(w.find('.empty-state .icon-container').exists()).toBe(true);
   });
 
   it('filter button calls listSessions with the current filters', async () => {

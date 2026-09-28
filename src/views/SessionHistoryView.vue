@@ -1,5 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { PhClockCounterClockwise } from '@phosphor-icons/vue';
+import IconContainer from '../components/IconContainer.vue';
 
 const sessions = ref([]);
 const expandedId = ref(null);
@@ -90,6 +92,9 @@ const statusOptions = ['', 'continue', 'blocked', 'completed', 'abandoned'];
       </div>
     </div>
 
-    <p v-else class="empty-state">No completed sessions yet.</p>
+    <div v-else class="empty-state">
+      <IconContainer><PhClockCounterClockwise :size="24" aria-hidden="true" /></IconContainer>
+      <p>No completed sessions yet.</p>
+    </div>
   </div>
 </template>

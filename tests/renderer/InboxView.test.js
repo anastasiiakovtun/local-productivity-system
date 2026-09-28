@@ -29,6 +29,16 @@ describe('InboxView', () => {
     await flushPromises();
     expect(w.find('input[aria-label="New task title"]').exists()).toBe(true);
     expect(w.find('.empty-state').exists()).toBe(true);
+    expect(w.find('.empty-state .icon-container').exists()).toBe(true);
+  });
+
+  it('shows a Plus icon before the regular-weight Add label', async () => {
+    const w = mount(InboxView);
+    await flushPromises();
+    const add = w.find('.capture-add');
+    expect(add.find('svg').exists()).toBe(true);
+    expect(add.text()).toBe('Add');
+    expect(add.classes()).toContain('btn-primary');
   });
 
   it('submitting the capture bar calls createTask and refreshes list', async () => {

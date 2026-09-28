@@ -438,8 +438,36 @@ button:focus-visible {
   padding: 10px 18px;
 }
 
+.capture-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 400;
+}
+
 /* ─── Empty + error states ────────────────────────────── */
-.empty-state { color: var(--color-text-faint); font-size: var(--text-md); margin-top: var(--space-2); }
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  color: var(--color-text-faint);
+  font-size: var(--text-md);
+  margin-top: var(--space-2);
+}
+.empty-state p { margin: 0; }
+.icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-container-size);
+  height: var(--icon-container-size);
+  flex: 0 0 var(--icon-container-size);
+  color: var(--color-accent);
+  border: 0.5px solid var(--line-default);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, rgba(45, 212, 191, 0.12), rgba(45, 212, 191, 0.025));
+}
 .error { color: #f87171; font-size: var(--text-md); margin-top: var(--space-2); }
 
 /* ─── Search ──────────────────────────────────────────── */

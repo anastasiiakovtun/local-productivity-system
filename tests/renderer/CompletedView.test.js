@@ -51,5 +51,6 @@ describe('CompletedView', () => {
     const w = mount(CompletedView);
     await flushPromises();
     expect(w.find('.empty-state').exists()).toBe(true);
+    expect(w.find('.empty-state .icon-container').exists()).toBe(true);
   });
 });
