@@ -17,6 +17,7 @@
 - Do not add crash recovery or active-session restoration.
 - Breaks are non-durable and use `defaultBreakMinutes`.
 - Primary teal buttons use regular-weight `#0f0f13` text.
+- Borders/dividers use `0.5px` fading reflected-light gradients; icon placeholders use rounded gradient containers.
 - Launch and exercise the packaged executable after every task.
 
 ## Review Focus
@@ -139,9 +140,10 @@
 - [ ] Add failing App tests asserting four icon components, labels, and `aria-current="page"`.
 - [ ] Install `@phosphor-icons/vue` and map House, CalendarBlank, CheckCircle, and ClockCounterClockwise to current nav items.
 - [ ] Apply exact handoff tokens, radial gradient, selected-nav indicator, radii, fields, cards, reduced-motion/transparency rules, and semantic colors.
+- [ ] Replace solid separators with `0.5px` reflected-light gradients that fade to the dark surface; use rounded gradient containers for every icon/image placeholder.
 - [ ] Set every primary teal button to regular-weight dark `#0f0f13` text.
 - [ ] Run renderer tests and `npm test`.
-- [ ] Run `npm run test:e2e`; launch packaged app at 1000×700 and inspect every reachable screen for contrast, focus, clipping, icons, and handoff fidelity.
+- [ ] Run `npm run test:e2e`; launch packaged app at 1000×700 and inspect every reachable screen for contrast, focus, clipping, icons, fading `0.5px` edges, rounded gradient icon containers, and handoff fidelity.
 - [ ] Repeat final clean-vault lifecycle; inspect Inbox, Activity, both Focus Logs, Sessions UI, and SQLite.
 - [ ] Commit `style: apply visual handoff and navigation icons`.
 

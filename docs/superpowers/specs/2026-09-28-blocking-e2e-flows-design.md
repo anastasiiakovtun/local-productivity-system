@@ -136,6 +136,8 @@ After all functional manual gates pass, apply `DESIGN-HANDOFF.md` to existing sc
 
 - Use the exact dark palette, radial background gradient, Inter stack, spacing, radii, borders, shadows, focus treatments, motion durations, and transparency fallbacks from the handoff.
 - Primary buttons use regular-weight `#0f0f13` text on `#2dd4bf` for specified contrast.
+- Borders and dividers are `0.5px` low-opacity gradients that fade into adjacent dark surfaces like reflected light; solid hard separator lines are not used.
+- Icon and image placeholders use rounded-rectangle containers with subtle gradient surfaces and edge reflections rather than bare icons on flat backgrounds.
 - Secondary and destructive actions use the handoff's neutral and restrained-danger treatments.
 - Cards, task rows, forms, Resume Packet, Timer, Checkpoint, break offer, and break timer use the documented radius hierarchy.
 
@@ -189,5 +191,6 @@ Use a fresh isolated user-data directory and vault for each gate.
 - Existing session components are mounted through an understandable App-level flow.
 - No active-session restoration or crash-recovery feature is added.
 - Existing screens match the requested radial background, button contrast, rounded selected navigation, and Phosphor icon treatment.
+- Existing screens use thin fading gradient borders/dividers and rounded gradient icon containers.
 - Full automated suite and packaged smoke test pass.
 - Final manual verification observes correct Markdown files in the selected vault.

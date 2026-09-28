@@ -171,6 +171,39 @@ Do not mix square controls with rounded cards. Do not make every object pill-sha
 
 ## 5. Surface, border, divider, and sheen recipes
 
+### Border and icon-container override
+
+This rule supersedes the solid `1px` border examples below for the implementation pass:
+
+- Use `0.5px` borders and dividers.
+- Borders must read as reflected light: use a low-opacity gradient that fades into the adjacent dark surface instead of a uniform hard line.
+- Horizontal dividers fade to transparent at both ends.
+- Icon or image placeholders use rounded-rectangle containers with a subtle surface gradient, low-opacity edge reflection, and the documented radius scale. Do not place a bare icon directly on a flat background.
+
+```css
+.soft-border {
+  border: 0.5px solid transparent;
+  background:
+    linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
+    linear-gradient(135deg, rgba(245, 245, 247, 0.13), rgba(245, 245, 247, 0.035) 55%, transparent) border-box;
+}
+
+.divider {
+  height: 0.5px;
+  background: linear-gradient(90deg, transparent, rgba(245, 245, 247, 0.08) 22%, rgba(245, 245, 247, 0.04) 78%, transparent);
+}
+
+.icon-container {
+  display: inline-grid;
+  place-items: center;
+  border: 0.5px solid transparent;
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(145deg, rgba(45, 212, 191, 0.10), rgba(255, 255, 255, 0.025)) padding-box,
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.025) 60%, transparent) border-box;
+}
+```
+
 ### Standard card
 
 ```css
@@ -828,6 +861,8 @@ Do not block functional development on visual polish.
 
 - [ ] Active nav uses teal, with a 3px x 16px indicator and no second selection color.
 - [ ] Background uses the specified radial gradient, not a linear gradient or purple mesh.
+- [ ] Borders and dividers are `0.5px` reflected-light gradients that fade into dark surfaces, not solid hard lines.
+- [ ] Icon and image placeholders use rounded-rectangle gradient containers, never bare flat icons.
 - [ ] All cards, buttons, icon containers, fields, and dialogs follow the documented radius scale.
 - [ ] Dividers remain at 6% to 8% white opacity.
 - [ ] Primary-action glow remains at or below 18% teal opacity.
