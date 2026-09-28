@@ -60,7 +60,7 @@ async function resume() { await session.resumeSession(); }
         </div>
       </div>
 
-      <!-- Project cover + task identity -->
+      <!-- Project cover + task identity — pinned left -->
       <div class="timer-modal-identity">
         <ProjectCover
           :project-label="session.activeSession?.project_label"
@@ -73,13 +73,13 @@ async function resume() { await session.resumeSession(); }
         </div>
       </div>
 
-      <!-- Timer display -->
-      <div class="timer-display" :class="{ overflow: isOverflow }">
+      <!-- Timer display — centered -->
+      <div class="timer-display timer-display--centered" :class="{ overflow: isOverflow }">
         {{ displayTime }}
       </div>
 
-      <p v-if="isOverflow" class="timer-overflow-label">
-        Overflow — minimum commitment reached.
+      <p v-if="isOverflow" class="timer-overflow-label timer-overflow-label--centered">
+        Overtime — minimum commitment reached.
       </p>
 
       <!-- Planned duration row -->
@@ -88,8 +88,8 @@ async function resume() { await session.resumeSession(); }
         <span class="timer-time-value">{{ session.activeSession?.planned_minutes }} min</span>
       </div>
 
-      <!-- Controls -->
-      <div class="timer-modal-controls">
+      <!-- Controls — centered -->
+      <div class="timer-modal-controls timer-modal-controls--centered">
         <button
           v-if="!isPaused"
           type="button"

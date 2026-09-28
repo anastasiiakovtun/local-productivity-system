@@ -62,6 +62,15 @@ describe('TimerView', () => {
     expect(w.find('.quick-abandon-stub').exists()).toBe(false);
   });
 
+  it('QuickAbandonPanel renders inside a centered backdrop overlay', async () => {
+    const w = mountWithSession();
+    w.findComponent(stubs.TimerModal).vm.$emit('request-abandon');
+    await flushPromises();
+    // abandon panel should be inside a full-screen backdrop, not .timer-view
+    expect(w.find('.timer-abandon-backdrop').exists()).toBe(true);
+    expect(w.find('.quick-abandon-stub').exists()).toBe(true);
+  });
+
   it('switches to QuickAbandonPanel on request-abandon', async () => {
     const w = mountWithSession();
     const modal = w.findComponent(stubs.TimerModal);

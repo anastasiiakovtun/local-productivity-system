@@ -123,7 +123,7 @@ button:focus-visible {
 }
 
 .btn-icon {
-  padding: 4px 10px;
+  padding: 6px 12px;
   border: 0.5px solid var(--line-default);
   background: transparent;
   color: var(--color-text-muted);

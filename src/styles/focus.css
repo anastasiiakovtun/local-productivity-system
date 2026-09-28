@@ -198,7 +198,112 @@
 }
 .quick-abandon-actions { display: flex; gap: var(--space-3); justify-content: flex-end; }
 
-/* ─── Floating Timer Pill ──────────────────────────────── */
+/* ─── Timer display centered ───────────────────────────── */
+.timer-display--centered {
+  text-align: center;
+}
+
+.timer-overflow-label--centered {
+  text-align: center;
+}
+
+/* ─── Timer controls centered ──────────────────────────── */
+.timer-modal-controls--centered {
+  justify-content: center;
+}
+
+/* ─── Quick Abandon — centered modal backdrop ──────────── */
+.timer-abandon-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+/* ─── Resume Packet header restructure ─────────────────── */
+.rp-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.rp-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.rp-duration-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+}
+
+.rp-duration-input {
+  width: 60px;
+  text-align: center;
+}
+
+.rp-duration-unit {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* ─── Blocker inline input ─────────────────────────────── */
+.rp-blocker-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 0.5px solid rgba(245, 245, 247, 0.10);
+  border-radius: 0;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-sm);
+  padding: 4px 0;
+  caret-color: var(--color-accent);
+}
+
+.rp-blocker-input::placeholder { color: var(--color-text-muted); }
+
+.rp-blocker-input:focus-visible {
+  outline: none;
+  border-bottom-color: rgba(245, 158, 11, 0.5);
+}
+
+/* Blocked tone: amber underline */
+.resume-section.tone-blocked .rp-blocker-input {
+  color: var(--color-blocked);
+  border-bottom-color: rgba(245, 158, 11, 0.4);
+}
+
+/* ─── Notes as bullet list ─────────────────────────────── */
+.rp-notes-list {
+  margin: 0 0 var(--space-2);
+  padding-left: 16px;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+/* ─── Start row — centered ─────────────────────────────── */
+.rp-start-row {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-2);
+}
+
+.rp-start-btn {
+  min-width: 160px;
+}
+
+/* ─── Inbox icon button spacing ────────────────────────── */
 .floating-timer {
   display: flex;
   align-items: center;

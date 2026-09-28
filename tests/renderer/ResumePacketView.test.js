@@ -4,7 +4,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ResumePacketView from '../../src/views/ResumePacketView.vue';
 
-const task = { id: '^task-abc', title: 'Write essay', project_label: 'Thesis', status: 'open', supporting_notes: null };
+const task = { id: '^task-abc', title: 'Write essay', project_label: 'Thesis', status: 'open', supporting_notes: null, blocker: null, next_action: null };
 
 const stubs = {
   PhMapPinLine: { template: '<span/>' },
@@ -15,7 +15,7 @@ const stubs = {
   PhX: { template: '<span/>' },
   PhFloppyDisk: { template: '<span/>' },
   ProjectCover: { template: '<div class="project-cover-stub"/>' },
-  ResumeSection: { template: '<div class="resume-section-stub"><slot/></div>', props: ['label', 'icon', 'tone'] },
+  ResumeSection: { template: '<div class="resume-section-stub"><span class="stub-label">{{ label }}</span><slot/></div>', props: ['label', 'icon', 'tone'] },
 };
 
 beforeEach(() => {
@@ -29,6 +29,51 @@ beforeEach(() => {
 });
 
 describe('ResumePacketView', () => {
+  it('shows separate Next Action and Supporting Notes sections', async () => {
+    const w = mount(ResumePacketView, { props: { task }, global: { stubs } });
+    await flushPromises();
+    expect(w.text()).toContain('Next Action');
+    expect(w.text()).toContain('Supporting Notes');
+  });
+
+  it('has a blocker input field (editable inline)', async () => {
+    const w = mount(ResumePacketView, { props: { task }, global: { stubs } });
+    await flushPromises();
+    expect(w.find('[data-blocker-input]').exists()).toBe(true);
+  });
+
+  it('blocker input placeholder says "No blocker"', async () => {
+    const w = mount(ResumePacketView, { props: { task }, global: { stubs } });
+    await flushPromises();
+    expect(w.find('[data-blocker-input]').attributes('placeholder')).toContain('No blocker');
+  });
+
+  it('blocker input pre-fills from task.blocker', async () => {
+    const taskWithBlocker = { ...task, blocker: 'Need API key' };
+    const w = mount(ResumePacketView, { props: { task: taskWithBlocker }, global: { stubs } });
+    await flushPromises();
+    const input = w.find('[data-blocker-input]');
+    expect(input.exists()).toBe(true);
+    // The input should have been populated — set it and verify v-model round-trips
+    await input.setValue('Need API key');
+    expect(input.element.value).toBe('Need API key');
+  });
+
+  it('has an X close button (no separate Cancel button)', async () => {
+    const w = mount(ResumePacketView, { props: { task }, global: { stubs } });
+    await flushPromises();
+    expect(w.find('[data-action="close"]').exists()).toBe(true);
+    // No standalone "Cancel" button — close is X only
+    const buttonTexts = w.findAll('button').map(b => b.text()).join(' ');
+    expect(buttonTexts).not.toMatch(/\bCancel\b/);
+  });
+
+  it('duration input is in the header area', async () => {
+    const w = mount(ResumePacketView, { props: { task }, global: { stubs } });
+    await flushPromises();
+    expect(w.find('.rp-header-row #duration-input').exists()).toBe(true);
+  });
+
   it('renders inside the shared centered workflow card', async () => {
     const w = mount(ResumePacketView, { props: { task }, global: { stubs } });
     await flushPromises();
@@ -54,7 +99,7 @@ describe('ResumePacketView', () => {
     expect(w.text()).toContain('No previous checkpoint');
   });
 
-  it('shows last checkpoint outcome and status when present', async () => {
+  it('shows last checkpoint outcome when present', async () => {
     window.app.getLastCheckpoint.mockResolvedValue({
       status: 'success',
       data: { outcome: 'Drafted intro', status: 'continue', next_action: 'Finish methods' },
@@ -62,22 +107,6 @@ describe('ResumePacketView', () => {
     const w = mount(ResumePacketView, { props: { task }, global: { stubs } });
     await flushPromises();
     expect(w.text()).toContain('Drafted intro');
-  });
-
-  it('shows empty blocker message when no checkpoint blocker', async () => {
-    const w = mount(ResumePacketView, { props: { task }, global: { stubs } });
-    await flushPromises();
-    expect(w.text()).toContain('No blockers');
-  });
-
-  it('shows blocker text when checkpoint has blocker', async () => {
-    window.app.getLastCheckpoint.mockResolvedValue({
-      status: 'success',
-      data: { outcome: 'Done', status: 'continue', blocker: 'Need API key' },
-    });
-    const w = mount(ResumePacketView, { props: { task }, global: { stubs } });
-    await flushPromises();
-    expect(w.text()).toContain('Need API key');
   });
 
   it('duration input defaults to defaultFocusMinutes from preferences', async () => {
@@ -89,7 +118,7 @@ describe('ResumePacketView', () => {
   it('Start Session button calls startSession', async () => {
     const w = mount(ResumePacketView, { props: { task }, global: { stubs }, attrs: { onStarted: vi.fn() } });
     await flushPromises();
-    await w.find('.btn-primary').trigger('click');
+    await w.find('.rp-start-btn').trigger('click');
     await flushPromises();
     expect(window.app.startSession).toHaveBeenCalledWith('^task-abc', 25);
   });

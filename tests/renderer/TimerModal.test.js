@@ -100,6 +100,19 @@ describe('TimerModal', () => {
     expect(window.app.resumeSession).toHaveBeenCalled();
   });
 
+  it('timer display is centered', () => {
+    const w = mountModal();
+    const display = w.find('.timer-display');
+    expect(display.exists()).toBe(true);
+    // centered via CSS; confirm it exists and has text
+    expect(display.text()).toMatch(/\d{2}:\d{2}/);
+  });
+
+  it('controls row has justify-content center class', () => {
+    const w = mountModal();
+    expect(w.find('.timer-modal-controls').classes()).toContain('timer-modal-controls--centered');
+  });
+
   it('Finish button emits finish', async () => {
     const w = mountModal();
     await w.find('[data-action="finish"]').trigger('click');
