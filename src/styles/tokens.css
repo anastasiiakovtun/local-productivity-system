@@ -26,6 +26,9 @@
   --line-default: rgba(245, 245, 247, 0.08);
   --line-strong: rgba(245, 245, 247, 0.12);
   --line-accent: rgba(45, 212, 191, 0.28);
+  --line-surface-top: rgba(245, 245, 247, 0.14);
+  --line-surface-side: rgba(245, 245, 247, 0.035);
+  --line-surface-bottom: rgba(0, 0, 0, 0.18);
 
   /* Radii */
   --radius-xs: 6px;

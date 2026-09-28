@@ -111,6 +111,68 @@
 .status--abandoned{ color: var(--color-abandoned);  border-color: rgba(239, 68, 68, 0.22);   background: rgba(239, 68, 68, 0.10); }
 .status--completed{ color: var(--color-completed);  border-color: rgba(34, 197, 94, 0.22);   background: rgba(34, 197, 94, 0.10); }
 
+/* ─── Ambient top-edge surface highlight ───────────────── */
+.home-resume-card,
+.home-capture-card,
+.home-empty-card,
+.project-palette,
+.task-row,
+.session-row,
+.timer-view,
+.timer-modal,
+.quick-abandon-panel,
+.floating-timer,
+.resume-section,
+.rp-checkpoint {
+  position: relative;
+  isolation: isolate;
+  border-color: transparent;
+}
+
+.task-row,
+.session-row {
+  outline-color: transparent;
+}
+
+.home-resume-card::before,
+.home-capture-card::before,
+.home-empty-card::before,
+.project-palette::before,
+.task-row::before,
+.session-row::before,
+.timer-view::before,
+.timer-modal::before,
+.quick-abandon-panel::before,
+.floating-timer::before,
+.resume-section::before,
+.rp-checkpoint::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 0.5px;
+  border-radius: inherit;
+  background: linear-gradient(180deg,
+    var(--line-surface-top) 0%,
+    var(--line-surface-side) 36%,
+    var(--line-surface-bottom) 100%
+  );
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.resume-section.tone-blocked::before {
+  background: linear-gradient(180deg,
+    rgba(239, 68, 68, 0.20) 0%,
+    rgba(239, 68, 68, 0.06) 36%,
+    var(--line-surface-bottom) 100%
+  );
+}
+
 /* ─── Motion / reduced-motion ─────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
