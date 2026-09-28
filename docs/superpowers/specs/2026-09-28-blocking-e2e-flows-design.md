@@ -135,7 +135,7 @@ After all functional manual gates pass, apply `DESIGN-HANDOFF.md` to existing sc
 ### 8.1 Foundation
 
 - Use the exact dark palette, radial background gradient, Inter stack, spacing, radii, borders, shadows, focus treatments, motion durations, and transparency fallbacks from the handoff.
-- Primary buttons use `#0f0f13` text on `#2dd4bf` for specified contrast.
+- Primary buttons use regular-weight `#0f0f13` text on `#2dd4bf` for specified contrast.
 - Secondary and destructive actions use the handoff's neutral and restrained-danger treatments.
 - Cards, task rows, forms, Resume Packet, Timer, Checkpoint, break offer, and break timer use the documented radius hierarchy.
 
