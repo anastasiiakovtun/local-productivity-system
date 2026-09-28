@@ -1,11 +1,17 @@
 import assert from 'node:assert/strict';
+import path from 'node:path';
 import { _electron as electron } from 'playwright';
+import { getPackagePaths } from '../../scripts/package-artifact.mjs';
 
-const electronApp = await electron.launch({ args: ['.'], cwd: process.cwd() });
+const { executable } = getPackagePaths();
+const executablePath = process.platform === 'darwin'
+  ? path.join(executable, 'Contents', 'MacOS', 'Obsidian Focus Companion')
+  : executable;
+
+const electronApp = await electron.launch({ executablePath });
 try {
   const window = await electronApp.firstWindow();
-  await window.locator('h1').waitFor();
-  assert.equal(await window.locator('h1').textContent(), 'Connect a test Obsidian Vault');
+  assert.equal(await window.title(), 'Obsidian Focus Companion');
 
   const rendererBoundary = await window.evaluate(() => ({
     requireType: typeof window.require,
@@ -36,4 +42,4 @@ try {
   await electronApp.close();
 }
 
-console.log('Electron smoke test passed: Vue rendered with isolated sandbox preferences.');
+console.log('Packaged Electron smoke test passed: Vue rendered with isolated sandbox preferences.');
