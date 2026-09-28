@@ -59,6 +59,10 @@ export class TaskStore {
         updated_occurred_at_utc = @occurred_at_utc
       WHERE id = @id
     `);
+
+    this._updateSupportingNotes = db.prepare(`
+      UPDATE tasks SET supporting_notes = @supporting_notes WHERE id = @id
+    `);
   }
 
   _getTask(id) {
@@ -142,10 +146,16 @@ export class TaskStore {
     const current = this._getTask(id);
     if (!current) return { status: 'error', reason: 'not-found' };
 
-    const semanticKeys = ['title', 'projectLabel', 'startDate', 'dueDate', 'estimateMinutes'];
+    // Validate supportingNotes early
+    if ('supportingNotes' in changes && changes.supportingNotes !== null && typeof changes.supportingNotes !== 'string') {
+      return { status: 'error', reason: 'invalid-supporting-notes' };
+    }
+
+    const semanticKeys = ['title', 'projectLabel', 'startDate', 'dueDate', 'estimateMinutes', 'supportingNotes'];
     const dbKeyMap = {
       projectLabel: 'project_label', startDate: 'start_date',
       dueDate: 'due_date', estimateMinutes: 'estimate_minutes',
+      supportingNotes: 'supporting_notes',
     };
 
     const changed_fields = {};
@@ -159,7 +169,14 @@ export class TaskStore {
     if (Object.keys(changed_fields).length === 0) return { status: 'success', task: current };
 
     const ts = this._ts();
-    const updated = {
+    // Update supporting_notes separately (not part of _updateTask statement)
+    if ('supportingNotes' in changes) {
+      this._updateSupportingNotes.run({ id, supporting_notes: changes.supportingNotes ?? null });
+    }
+
+    const semanticTaskKeys = ['title', 'projectLabel', 'startDate', 'dueDate', 'estimateMinutes'];
+    const hasTaskChanges = semanticTaskKeys.some(k => k in changes);
+    const updated = hasTaskChanges ? {
       id,
       title: changes.title ?? current.title,
       status: current.status,
@@ -168,8 +185,8 @@ export class TaskStore {
       due_date: changes.dueDate !== undefined ? changes.dueDate : current.due_date,
       estimate_minutes: changes.estimateMinutes !== undefined ? changes.estimateMinutes : current.estimate_minutes,
       ...ts,
-    };
-    this._updateTask.run(updated);
+    } : null;
+    if (updated) this._updateTask.run(updated);
 
     // Update Markdown if title changed
     if (changed_fields.title) {
@@ -187,8 +204,8 @@ export class TaskStore {
 
     await this._eventStore.appendEvent({
       event_type: 'edited', task_id: id,
-      task_title: updated.title,
-      project_label: updated.project_label,
+      task_title: updated?.title ?? current.title,
+      project_label: updated?.project_label ?? current.project_label,
       changed_fields, source: 'app', ...ts,
     });
 

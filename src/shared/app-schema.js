@@ -41,6 +41,9 @@ export function validateCreateTask(fields) {
 export function validateEditTask(id, changes) {
   if (typeof id !== 'string' || !id) return 'id is required';
   if (!changes || typeof changes !== 'object') return 'changes must be an object';
+  if ('supportingNotes' in changes && changes.supportingNotes !== null && typeof changes.supportingNotes !== 'string') {
+    return 'supportingNotes must be a string or null';
+  }
   return null;
 }
 

@@ -6,6 +6,55 @@ import { TaskStore } from '../../src/main/task-store.js';
 const START = '<!-- focus:tasks:start -->';
 const END   = '<!-- focus:tasks:end -->';
 
+// ─── Supporting-notes persistence tests ────────────────
+describe('TaskStore.editTask — supporting notes', () => {
+  it('saves supportingNotes to DB supporting_notes column', async () => {
+    const { store, db } = setup();
+    const created = await store.createTask({ title: 'Task A' });
+    const id = created.task.id;
+    await store.editTask({ id, changes: { supportingNotes: 'Buy more coffee.' } });
+    const row = db.prepare('SELECT supporting_notes FROM tasks WHERE id = ?').get(id);
+    expect(row.supporting_notes).toBe('Buy more coffee.');
+  });
+
+  it('does not include supportingNotes in Inbox Markdown line', async () => {
+    const { store, readNote } = setup();
+    const created = await store.createTask({ title: 'Task B' });
+    const id = created.task.id;
+    await store.editTask({ id, changes: { supportingNotes: 'Private note.' } });
+    // Last readNote call will contain inbox content
+    const lastRead = await readNote.mock.results.at(-1).value;
+    expect(lastRead.content ?? '').not.toContain('Private note.');
+  });
+
+  it('accepts null to clear supporting notes', async () => {
+    const { store, db } = setup();
+    const created = await store.createTask({ title: 'Task C' });
+    const id = created.task.id;
+    await store.editTask({ id, changes: { supportingNotes: 'Old note.' } });
+    await store.editTask({ id, changes: { supportingNotes: null } });
+    const row = db.prepare('SELECT supporting_notes FROM tasks WHERE id = ?').get(id);
+    expect(row.supporting_notes).toBeNull();
+  });
+
+  it('records supportingNotes in changed_fields when changed', async () => {
+    const { store, appendEvent } = setup();
+    const created = await store.createTask({ title: 'Task D' });
+    const id = created.task.id;
+    await store.editTask({ id, changes: { supportingNotes: 'Note.' } });
+    const editCall = appendEvent.mock.calls.find(c => c[0].event_type === 'edited');
+    expect(editCall?.[0]?.changed_fields?.supportingNotes).toBeDefined();
+  });
+
+  it('rejects non-string non-null supportingNotes (validation)', async () => {
+    const { store } = setup();
+    const created = await store.createTask({ title: 'Task E' });
+    const id = created.task.id;
+    const r = await store.editTask({ id, changes: { supportingNotes: 42 } });
+    expect(r.status).toBe('error');
+  });
+});
+
 function makeInboxContent(inner = '') {
   return `# Inbox\n\n${START}\n${inner}${END}\n`;
 }

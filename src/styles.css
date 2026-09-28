@@ -797,6 +797,46 @@ button:focus-visible {
 .rp-field { margin-bottom: 14px; }
 .rp-label { font-size: var(--text-sm); color: var(--color-text-faint); margin-bottom: 4px; }
 .rp-value { font-size: 15px; color: var(--color-text); }
+
+/* ─── Resume Packet v2 ─────────────────────────────────── */
+.rp-identity { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); }
+.rp-identity-text { display: flex; flex-direction: column; gap: 2px; }
+.rp-project { font-size: var(--text-xs); color: var(--color-text-muted); margin: 0; }
+.rp-title   { font-size: var(--text-xl); font-weight: 600; margin: 0; }
+.rp-actions { display: flex; gap: var(--space-3); margin-top: var(--space-4); }
+.rp-muted   { color: var(--color-text-muted); font-size: var(--text-sm); margin: 0; }
+.rp-blocker { color: var(--color-blocked); font-size: var(--text-sm); margin: 0; }
+.rp-checkpoint-outcome { font-size: var(--text-sm); margin: 0 0 4px; }
+.rp-checkpoint-action  { font-size: var(--text-xs); color: var(--color-text-muted); margin: 0; }
+
+/* Resume Section component */
+.resume-section { margin-bottom: var(--space-4); padding: var(--space-4); background: rgba(255,255,255,0.02); border: 0.5px solid rgba(245,245,247,0.06); border-radius: var(--radius-md); }
+.resume-section.tone-blocked { border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.04); }
+.resume-section-header { display: flex; align-items: center; gap: 8px; margin-bottom: var(--space-2); }
+.resume-section-label { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); font-weight: 600; }
+.resume-section-icon { flex-shrink: 0; }
+.resume-section-body { font-size: var(--text-sm); }
+
+/* Notes editor */
+.rp-notes-editor {
+  background: rgba(255,255,255,0.04);
+  border: 0.5px solid rgba(245,245,247,0.10);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  padding: var(--space-2);
+  resize: vertical;
+  width: 100%;
+  font-family: inherit;
+  margin-bottom: var(--space-2);
+}
+.rp-notes-editor:focus { outline: none; border-color: var(--color-teal); }
+.rp-notes-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.rp-notes-btn { display: flex; align-items: center; gap: 4px; font-size: var(--text-sm); }
+.rp-notes-error { color: var(--color-blocked); font-size: var(--text-xs); margin: 0 0 var(--space-2); }
+.rp-notes-display { font-size: var(--text-sm); margin: 0 0 var(--space-2); white-space: pre-wrap; }
+.rp-edit-btn { background: none; border: none; color: var(--color-text-muted); cursor: pointer; font-size: var(--text-xs); display: flex; align-items: center; gap: 4px; padding: 2px 4px; border-radius: var(--radius-sm); }
+.rp-edit-btn:hover { color: var(--color-text); }
 .rp-checkpoint {
   padding: 12px;
   background: rgba(255, 255, 255, 0.04);
