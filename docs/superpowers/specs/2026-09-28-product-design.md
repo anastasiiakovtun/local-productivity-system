@@ -143,13 +143,12 @@ A human-readable projection is appended to `Productivity/Activity.md` after each
 - Sets status back to `open`, updates `- [x]` → `- [ ]` in Markdown.
 - Creates a `reopened` event.
 
-### 6.5 Delete (soft)
+### 6.5 Delete (hard)
 
-- Sets status to `deleted`.
-- Removes the task line from the Project/Inbox managed section.
-- Appends a tombstone line to `Productivity/Trash.md`.
-- Creates a `deleted` event.
-- Task remains in SQLite with full history.
+- Sets status to `deleted` in SQLite.
+- Removes the task line from the Project/Inbox managed section permanently.
+- Creates a `deleted` event in `task_events` (history preserved in SQLite).
+- No Trash.md write. No restore capability in this increment.
 
 ### 6.6 Link to Project
 
@@ -176,15 +175,7 @@ Lists designated Projects. Expanding a Project shows its open tasks from the man
 
 Lists completed tasks across all projects, sortable by completion date. Searchable by title.
 
-### 7.5 Trash
-
-Lists deleted tasks. Restore action available.
-
-### 7.6 Activity
-
-Reverse-chronological Task Lifecycle Event log. Filterable by project and event type.
-
-### 7.7 Session History
+### 7.5 Session History
 
 Lists Focus Sessions reverse-chronologically. Each row: task, project, session date, planned/actual/overflow duration, checkpoint status. Expandable detail shows full Checkpoint.
 
@@ -288,9 +279,8 @@ New channels beyond the two spikes:
 | `tasks:edit` | renderer→main | Edit task fields |
 | `tasks:complete` | renderer→main | Complete task |
 | `tasks:reopen` | renderer→main | Reopen task |
-| `tasks:delete` | renderer→main | Soft-delete task |
-| `tasks:list` | renderer→main | Query tasks (by view: inbox/today/project/completed/trash) |
-| `events:list` | renderer→main | Query task lifecycle events (Activity view) |
+| `tasks:delete` | renderer→main | Hard-delete task (remove from Markdown, SQLite status=deleted, append Activity.md) |
+| `tasks:list` | renderer→main | Query tasks (by view: inbox/today/project/completed) |
 | `sessions:start` | renderer→main | Start Focus Session (creates session record) |
 | `sessions:pause` | renderer→main | Pause active session |
 | `sessions:resume` | renderer→main | Resume paused session |
@@ -318,7 +308,6 @@ window.app = {
   reopenTask(id),
   deleteTask(id),
   listTasks(view, filters),
-  listEvents(filters),
   startSession(taskId, plannedMinutes),
   pauseSession(sessionId),
   resumeSession(sessionId),
@@ -359,4 +348,6 @@ The `better-sqlite3` rebuild/package spike (§27 item 7) is required before the 
 - Area assignment.
 - Project creation (designation of existing notes only).
 - Import of arbitrary checkboxes.
-- Upcoming view (deferred — start date filtering deferred to after Today view is stable).
+- Upcoming view (start date filtering deferred to after Today view is stable).
+- Trash view and restore (hard delete only).
+- Activity/event log view (events written to Activity.md in vault but no in-app viewer).
