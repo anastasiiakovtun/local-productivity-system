@@ -142,7 +142,7 @@ async function onMinimizeTimer() {
     </template>
 
     <template v-else-if="screen === 'break-offer'">
-      <div class="break-offer">
+      <div class="break-offer workflow-card">
         <h2>Session complete</h2>
         <p>Take a break before your next session?</p>
         <label class="break-duration-label" for="break-duration">Break duration</label>

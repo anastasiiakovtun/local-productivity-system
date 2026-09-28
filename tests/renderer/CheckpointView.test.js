@@ -22,6 +22,26 @@ beforeEach(() => {
 });
 
 describe('CheckpointView', () => {
+  it('renders inside the shared centered workflow card', () => {
+    const w = mount(CheckpointView);
+    expect(w.classes()).toContain('workflow-card');
+  });
+
+  it('gives each status its own selected-state class', async () => {
+    const w = mount(CheckpointView);
+    for (const value of ['continue', 'blocked', 'completed', 'abandoned']) {
+      expect(w.find(`.status-option--${value}`).exists()).toBe(true);
+    }
+  });
+
+  it('highlights blocker input only when populated', async () => {
+    const w = mount(CheckpointView);
+    const group = w.find('[data-blocker-group]');
+    expect(group.classes()).not.toContain('has-blocker');
+    await w.find('#cp-blocker').setValue('Waiting for feedback');
+    expect(group.classes()).toContain('has-blocker');
+  });
+
   it('Next Action field is shown for continue status', async () => {
     const w = mount(CheckpointView);
     expect(w.find('#cp-next-action').exists()).toBe(true);

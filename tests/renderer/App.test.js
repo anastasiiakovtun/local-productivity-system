@@ -235,6 +235,7 @@ describe('App focus flow', () => {
     await flushPromises();
     expect(w.text()).toContain('Take Break');
     expect(w.text()).toContain('Done');
+    expect(w.find('.break-offer.workflow-card').exists()).toBe(true);
   });
 
   it('Done on break offer returns to list without a break', async () => {

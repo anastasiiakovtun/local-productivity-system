@@ -14,6 +14,11 @@ afterEach(() => {
 });
 
 describe('BreakView', () => {
+  it('renders inside the shared centered workflow card', () => {
+    const w = mount(BreakView, { props: { breakMinutes: 5 } });
+    expect(w.classes()).toContain('workflow-card');
+  });
+
   it('shows countdown in MM:SS format', async () => {
     const w = mount(BreakView, { props: { breakMinutes: 5 } });
     expect(w.find('.break-timer').text()).toMatch(/\d{2}:\d{2}/);
