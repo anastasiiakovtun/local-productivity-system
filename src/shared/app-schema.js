@@ -15,10 +15,20 @@ export const CHANNELS = {
   SESSIONS_END:     'sessions:end',
   SESSIONS_LIST:    'sessions:list',
   CHECKPOINTS_SAVE: 'checkpoints:save',
+  HOME_GET_RESUME:  'home:get-resume',
+  PROJECTS_LIST:    'projects:list',
+  PROJECTS_SET_COVER: 'projects:set-cover',
 };
 
 const ALLOWED_VIEWS = new Set(['inbox', 'today', 'completed']);
 const ALLOWED_CHECKPOINT_STATUSES = new Set(['continue', 'blocked', 'completed', 'abandoned']);
+export const PROJECT_COVER_COLORS = Object.freeze([
+  '#2dd4bf',
+  '#60a5fa',
+  '#a78bfa',
+  '#fb923c',
+  '#f472b6',
+]);
 
 // Validates inbound task creation fields
 export function validateCreateTask(fields) {
@@ -49,6 +59,12 @@ export function validatePreferences(prefs) {
   if ('floatingTimerEnabled' in prefs && typeof prefs.floatingTimerEnabled !== 'boolean') {
     return 'floatingTimerEnabled must be boolean';
   }
+  return null;
+}
+
+export function validateProjectCover(projectLabel, color) {
+  if (typeof projectLabel !== 'string' || projectLabel.trim() === '') return 'projectLabel is required';
+  if (!PROJECT_COVER_COLORS.includes(color)) return 'invalid project cover color';
   return null;
 }
 

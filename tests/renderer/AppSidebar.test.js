@@ -10,6 +10,10 @@ const iconStubs = {
   PhCheckCircle: { template: '<svg data-icon="check" />' },
   PhClockCounterClockwise: { template: '<svg data-icon="history" />' },
   PhSidebarSimple: { template: '<svg data-icon="sidebar" />' },
+  ProjectCover: {
+    template: '<span class="project-cover-tile" :class="color ? \'project-cover-color\' : \'project-cover-neutral\'" :style="color ? { backgroundColor: color } : {}"><slot /></span>',
+    props: ['projectLabel', 'color', 'size'],
+  },
 };
 
 function mountSidebar(props = {}) {
@@ -62,7 +66,9 @@ describe('AppSidebar', () => {
     await wrapper.find('button[aria-label="Project Thesis"]').trigger('click');
     expect(wrapper.emitted('navigate')).toEqual([['inbox']]);
     expect(wrapper.emitted('select-project')).toEqual([['Thesis']]);
-    expect(wrapper.find('[data-project="Thesis"] .project-cover').attributes('style')).toContain('#2dd4bf');
-    expect(wrapper.find('[data-project="Fallback"] .project-cover').classes()).toContain('project-cover-fallback');
+    const thesisButton = wrapper.find('[data-project="Thesis"]');
+    const fallbackButton = wrapper.find('[data-project="Fallback"]');
+    expect(thesisButton.find('.project-cover-tile').attributes('style')).toContain('#2dd4bf');
+    expect(fallbackButton.find('.project-cover-tile').classes()).toContain('project-cover-neutral');
   });
 });

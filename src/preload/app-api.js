@@ -29,5 +29,8 @@ export function createAppApi(invoke) {
     getLastCheckpoint:(taskId)                               => call('sessions:get-checkpoint', taskId),
     listSessions:     (filters)                              => call(CHANNELS.SESSIONS_LIST, filters),
     saveCheckpoint:   (sessionId, fields)                    => call(CHANNELS.CHECKPOINTS_SAVE, sessionId, fields),
+    getHomeResume:    ()                                     => call(CHANNELS.HOME_GET_RESUME),
+    listProjects:     ()                                     => call(CHANNELS.PROJECTS_LIST),
+    setProjectCover:  (projectLabel, color)                  => call(CHANNELS.PROJECTS_SET_COVER, projectLabel, color),
   });
 }

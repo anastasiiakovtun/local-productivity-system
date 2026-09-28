@@ -28,6 +28,9 @@ beforeEach(() => {
     getPreferences: vi.fn().mockResolvedValue({ status: 'success', data: { vaultPath: '/vault', defaultFocusMinutes: 25, sidebarCollapsed: false } }),
     listSessions: vi.fn().mockResolvedValue({ status: 'success', data: [] }),
     saveCheckpoint: vi.fn(),
+    getHomeResume: vi.fn().mockResolvedValue({ status: 'success', data: null }),
+    listProjects: vi.fn().mockResolvedValue({ status: 'success', data: [] }),
+    setProjectCover: vi.fn().mockResolvedValue({ status: 'success' }),
   };
 });
 
@@ -40,6 +43,17 @@ describe('App shell', () => {
     expect(w.text()).toContain('Today');
     expect(w.text()).toContain('Completed');
     expect(w.text()).toContain('Sessions');
+    expect(w.findComponent({ name: 'HomeView' }).exists()).toBe(true);
+  });
+
+  it('resumes a task from Home', async () => {
+    const task = { ...inboxTask, outcome: 'Drafted', next_action: 'Review', color: null };
+    window.app.getHomeResume.mockResolvedValue({ status: 'success', data: task });
+    const w = mount(App);
+    await flushPromises();
+    await w.findComponent({ name: 'HomeView' }).vm.$emit('resume', task);
+    await flushPromises();
+    expect(w.findComponent({ name: 'ResumePacketView' }).exists()).toBe(true);
   });
 
   it('loads and persists collapsed sidebar preference', async () => {
@@ -93,6 +107,9 @@ describe('App focus flow', () => {
   it('emitting focus from InboxView shows ResumePacketView', async () => {
     window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
     const w = await mountWithVault();
+    // Navigate to Inbox first then emit focus
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await flushPromises();
     await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
     await flushPromises();
     expect(w.findComponent({ name: 'ResumePacketView' }).exists()).toBe(true);
@@ -101,6 +118,8 @@ describe('App focus flow', () => {
   it('cancel from ResumePacketView returns to list', async () => {
     window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
     const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await flushPromises();
     await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
     await flushPromises();
     await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('cancel');
@@ -112,6 +131,8 @@ describe('App focus flow', () => {
   it('started from ResumePacketView shows TimerView', async () => {
     window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
     const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await flushPromises();
     await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
     await flushPromises();
     await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('started');
@@ -122,6 +143,8 @@ describe('App focus flow', () => {
   it('end from TimerView shows CheckpointView', async () => {
     window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
     const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await flushPromises();
     await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
     await flushPromises();
     await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('started');
@@ -134,6 +157,8 @@ describe('App focus flow', () => {
   it('cancel from CheckpointView returns to TimerView', async () => {
     window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
     const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await flushPromises();
     await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
     await flushPromises();
     await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('started');
@@ -149,6 +174,8 @@ describe('App focus flow', () => {
   it('saved from CheckpointView returns to list', async () => {
     window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
     const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await flushPromises();
     await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
     await flushPromises();
     await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('started');
@@ -165,6 +192,8 @@ describe('App focus flow', () => {
   it('abandoned from TimerView returns to list', async () => {
     window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
     const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await flushPromises();
     await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
     await flushPromises();
     await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('started');
@@ -178,6 +207,8 @@ describe('App focus flow', () => {
   it('saved from CheckpointView shows break offer screen', async () => {
     window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
     const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await flushPromises();
     await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
     await flushPromises();
     await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('started');
@@ -193,6 +224,8 @@ describe('App focus flow', () => {
   it('Done on break offer returns to list without a break', async () => {
     window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
     const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await flushPromises();
     await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
     await flushPromises();
     await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('started');
@@ -209,6 +242,8 @@ describe('App focus flow', () => {
   it('Take Break shows BreakView; BreakView done returns to list', async () => {
     window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
     const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await flushPromises();
     await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
     await flushPromises();
     await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('started');
@@ -231,6 +266,8 @@ describe('App focus flow', () => {
     window.app.saveCheckpoint = vi.fn().mockResolvedValue({ status: 'success' });
     window.app.startSession = vi.fn().mockResolvedValue({ status: 'success', data: { session_id: 'sid-1', task_id: '^task-abc', task_title: 'Write essay', planned_minutes: 25, started_occurred_at_utc: new Date().toISOString(), paused_seconds: 0, status: 'active' } });
     const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await flushPromises();
     await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
     await flushPromises();
     await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('started');

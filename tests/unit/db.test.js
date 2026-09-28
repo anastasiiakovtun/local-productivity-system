@@ -20,6 +20,9 @@ describe('openDatabase', () => {
     expect(tables).toContain('task_events');
     expect(tables).toContain('sessions');
     expect(tables).toContain('checkpoints');
+    expect(tables).toContain('project_covers');
+    const taskColumns = db.prepare(`PRAGMA table_info(tasks)`).all().map((row) => row.name);
+    expect(taskColumns).toContain('supporting_notes');
     db.close();
   });
 

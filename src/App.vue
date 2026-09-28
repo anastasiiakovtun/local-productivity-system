@@ -1,7 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useVaultStore } from './stores/vault.js';
 import AppSidebar from './components/AppSidebar.vue';
+import { useHomeStore } from './stores/home.js';
+import HomeView from './views/HomeView.vue';
 import InboxView from './views/InboxView.vue';
 import TodayView from './views/TodayView.vue';
 import CompletedView from './views/CompletedView.vue';
@@ -12,7 +14,8 @@ import CheckpointView from './views/CheckpointView.vue';
 import BreakView from './views/BreakView.vue';
 
 const vault = useVaultStore();
-const activeView = ref('inbox');
+const homeStore = useHomeStore();
+const activeView = ref('home');
 // screens: list | resume | timer | checkpoint | break-offer | break
 const screen = ref('list');
 const focusTask = ref(null);
@@ -28,6 +31,8 @@ onMounted(async () => {
     if (result.status === 'success') sidebarCollapsed.value = result.data.sidebarCollapsed ?? false;
   } catch { /* use expanded default */ }
 });
+
+const appSidebarProjects = computed(() => homeStore.projects);
 
 async function toggleSidebar() {
   const previous = sidebarCollapsed.value;
@@ -49,6 +54,9 @@ function navigate(view) {
 function selectProject() {
   activeView.value = 'inbox';
 }
+
+function onHomeResume(task) { onFocus(task); }
+function onGoToday() { activeView.value = 'today'; }
 
 function onFocus(task) { focusTask.value = task; screen.value = 'resume'; }
 function onResumeCancel() { screen.value = 'list'; focusTask.value = null; }
@@ -124,7 +132,7 @@ function onFinishFlow() { screen.value = 'list'; focusTask.value = null; }
       <AppSidebar
         :active-view="activeView"
         :collapsed="sidebarCollapsed"
-        :projects="[]"
+        :projects="appSidebarProjects"
         @navigate="navigate"
         @toggle-collapse="toggleSidebar"
         @select-project="selectProject"
@@ -132,9 +140,10 @@ function onFinishFlow() { screen.value = 'list'; focusTask.value = null; }
 
       <main class="main-content">
         <p v-if="sidebarError" role="alert" class="error sidebar-error">{{ sidebarError }}</p>
-        <InboxView          v-if="activeView === 'inbox'"     @focus="onFocus" />
-        <TodayView          v-else-if="activeView === 'today'" @focus="onFocus" />
-        <CompletedView      v-else-if="activeView === 'completed'" />
+        <HomeView      v-if="activeView === 'home'"           @resume="onHomeResume" @go-today="onGoToday" @task-created="activeView = 'inbox'" />
+        <InboxView     v-else-if="activeView === 'inbox'"     @focus="onFocus" />
+        <TodayView     v-else-if="activeView === 'today'"     @focus="onFocus" />
+        <CompletedView v-else-if="activeView === 'completed'" />
         <SessionHistoryView v-else-if="activeView === 'sessions'" />
       </main>
     </template>

@@ -12,6 +12,7 @@ import { TaskStore } from './main/task-store.js';
 import { TaskEventStore } from './main/task-event-store.js';
 import { SessionStore } from './main/session-store.js';
 import { CheckpointStore } from './main/checkpoint-store.js';
+import { ProjectCoverStore } from './main/project-cover-store.js';
 import { registerAppHandlers } from './main/app-handlers.js';
 
 app.enableSandbox();
@@ -66,6 +67,7 @@ app.whenReady().then(() => {
   const taskStore      = new TaskStore({ db, eventStore, getVaultRoot, readNote, writeSection });
   const sessionStore   = new SessionStore(db);
   const checkpointStore = new CheckpointStore(db, getVaultRoot);
+  const projectCoverStore = new ProjectCoverStore(db);
 
   registerVaultSelectionHandler({
     ipcMain, dialog,
@@ -83,7 +85,7 @@ app.whenReady().then(() => {
   registerAppHandlers({
     ipcMain, db,
     getMainWindow: () => mainWindow,
-    taskStore, sessionStore, checkpointStore,
+    taskStore, sessionStore, checkpointStore, projectCoverStore,
   });
 
   createWindow();

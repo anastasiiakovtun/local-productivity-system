@@ -24,10 +24,16 @@ function setup() {
     deleteTask: vi.fn().mockResolvedValue({ status: 'success' }),
     listTasks: vi.fn().mockReturnValue([]),
   };
+  const projectCoverStore = {
+    getHomeResume: vi.fn().mockReturnValue(null),
+    listProjects: vi.fn().mockReturnValue([]),
+    setCover: vi.fn(),
+  };
 
   const handlers = createAppHandlers({
     getMainWindow: () => mainWindow,
     taskStore,
+    projectCoverStore,
     db,
     logger: { error: vi.fn() },
   });
@@ -38,7 +44,7 @@ function setup() {
   };
   const badEvent = { sender: {}, senderFrame: {} };
 
-  return { handlers, taskStore, db, validEvent, badEvent };
+  return { handlers, taskStore, projectCoverStore, db, validEvent, badEvent };
 }
 
 describe('app-handlers sender guard', () => {
@@ -105,6 +111,25 @@ describe('handleListTasks', () => {
     const { handlers, validEvent } = setup();
     const result = await handlers.handleListTasks(validEvent, 'trash');
     expect(result.status).toBe('error');
+  });
+});
+
+describe('Home and project cover handlers', () => {
+  it('returns Home resume data and project list', async () => {
+    const { handlers, projectCoverStore, validEvent } = setup();
+    projectCoverStore.getHomeResume.mockReturnValue({ id: '^task-1' });
+    projectCoverStore.listProjects.mockReturnValue([{ label: 'Thesis', color: null }]);
+    expect((await handlers.handleGetHomeResume(validEvent)).data).toEqual({ id: '^task-1' });
+    expect((await handlers.handleListProjects(validEvent)).data).toEqual([{ label: 'Thesis', color: null }]);
+  });
+
+  it('validates project labels and palette colors before persisting', async () => {
+    const { handlers, projectCoverStore, validEvent } = setup();
+    const invalidLabel = await handlers.handleSetProjectCover(validEvent, '', '#2dd4bf');
+    const invalidColor = await handlers.handleSetProjectCover(validEvent, 'Thesis', '#ffffff');
+    expect(invalidLabel).toEqual({ status: 'error', reason: 'projectLabel is required' });
+    expect(invalidColor).toEqual({ status: 'error', reason: 'invalid project cover color' });
+    expect(projectCoverStore.setCover).not.toHaveBeenCalled();
   });
 });
 

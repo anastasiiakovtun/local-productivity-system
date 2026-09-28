@@ -7,6 +7,7 @@ import {
   PhSidebarSimple,
   PhTray,
 } from '@phosphor-icons/vue';
+import ProjectCover from './ProjectCover.vue';
 
 const props = defineProps({
   activeView: { type: String, required: true },
@@ -17,7 +18,7 @@ const props = defineProps({
 const emit = defineEmits(['navigate', 'toggle-collapse', 'select-project']);
 
 const navigation = [
-  { view: 'home', label: 'Home', icon: PhHouse },
+  { view: 'home', label: 'Home', icon: PhHouse, isHome: true },
   { view: 'inbox', label: 'Inbox', icon: PhTray },
   { view: 'today', label: 'Today', icon: PhCalendarBlank },
   { view: 'completed', label: 'Completed', icon: PhCheckCircle },
@@ -69,12 +70,7 @@ const navigation = [
         :title="collapsed ? project.label : undefined"
         @click="emit('select-project', project.label)"
       >
-        <span
-          class="project-cover"
-          :class="{ 'project-cover-fallback': !project.color }"
-          :style="project.color ? { backgroundColor: project.color } : undefined"
-          aria-hidden="true"
-        />
+        <ProjectCover :project-label="project.label" :color="project.color" :size="20" />
         <span v-if="!collapsed" class="nav-label">{{ project.label }}</span>
       </button>
     </div>

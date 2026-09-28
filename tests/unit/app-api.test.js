@@ -11,6 +11,7 @@ describe('createAppApi', () => {
       'startSession', 'pauseSession', 'resumeSession', 'abandonSession', 'endSession',
       'getActiveSession', 'getLastCheckpoint',
       'listSessions', 'saveCheckpoint',
+      'getHomeResume', 'listProjects', 'setProjectCover',
     ]);
   });
 
@@ -24,6 +25,17 @@ describe('createAppApi', () => {
     const invoke = vi.fn().mockResolvedValue({ status: 'success', data: {} });
     await createAppApi(invoke).createTask({ title: 'Test' });
     expect(invoke).toHaveBeenCalledWith(CHANNELS.TASKS_CREATE, { title: 'Test' });
+  });
+
+  it('project and Home APIs invoke their channels', async () => {
+    const invoke = vi.fn().mockResolvedValue({ status: 'success', data: {} });
+    const api = createAppApi(invoke);
+    await api.getHomeResume();
+    await api.listProjects();
+    await api.setProjectCover('Thesis', '#2dd4bf');
+    expect(invoke).toHaveBeenNthCalledWith(1, CHANNELS.HOME_GET_RESUME);
+    expect(invoke).toHaveBeenNthCalledWith(2, CHANNELS.PROJECTS_LIST);
+    expect(invoke).toHaveBeenNthCalledWith(3, CHANNELS.PROJECTS_SET_COVER, 'Thesis', '#2dd4bf');
   });
 
   it('converts a malformed result to unexpected-error', async () => {

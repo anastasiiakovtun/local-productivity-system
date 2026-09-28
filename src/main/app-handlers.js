@@ -4,6 +4,7 @@ import {
   validateEditTask,
   validateListTasks,
   validatePreferences,
+  validateProjectCover,
   validateStartSession,
 } from '../shared/app-schema.js';
 
@@ -19,7 +20,7 @@ function isSenderValid(event, mainWindow) {
   );
 }
 
-export function createAppHandlers({ getMainWindow, taskStore, sessionStore, checkpointStore, db, logger = console }) {
+export function createAppHandlers({ getMainWindow, taskStore, sessionStore, checkpointStore, projectCoverStore, db, logger = console }) {
   function guard(event) {
     if (!isSenderValid(event, getMainWindow())) return false;
     return true;
@@ -208,6 +209,26 @@ export function createAppHandlers({ getMainWindow, taskStore, sessionStore, chec
     }
   }
 
+  async function handleGetHomeResume(event) {
+    if (!guard(event)) return unexpectedError();
+    try { return ok(projectCoverStore.getHomeResume()); } catch { return unexpectedError(); }
+  }
+
+  async function handleListProjects(event) {
+    if (!guard(event)) return unexpectedError();
+    try { return ok(projectCoverStore.listProjects()); } catch { return unexpectedError(); }
+  }
+
+  async function handleSetProjectCover(event, projectLabel, color) {
+    if (!guard(event)) return unexpectedError();
+    const validErr = validateProjectCover(projectLabel, color);
+    if (validErr) return err(validErr);
+    try {
+      projectCoverStore.setCover(projectLabel, color);
+      return ok(null);
+    } catch { return unexpectedError(); }
+  }
+
   return {
     handleGetPreferences,
     handleSetPreferences,
@@ -225,6 +246,9 @@ export function createAppHandlers({ getMainWindow, taskStore, sessionStore, chec
     handleGetLastCheckpoint,
     handleListSessions,
     handleSaveCheckpoint,
+    handleGetHomeResume,
+    handleListProjects,
+    handleSetProjectCover,
   };
 }
 
@@ -246,4 +270,7 @@ export function registerAppHandlers({ ipcMain, ...deps }) {
   ipcMain.handle('sessions:get-checkpoint',   h.handleGetLastCheckpoint);
   ipcMain.handle(CHANNELS.SESSIONS_LIST,      h.handleListSessions);
   ipcMain.handle(CHANNELS.CHECKPOINTS_SAVE,   h.handleSaveCheckpoint);
+  ipcMain.handle(CHANNELS.HOME_GET_RESUME,    h.handleGetHomeResume);
+  ipcMain.handle(CHANNELS.PROJECTS_LIST,      h.handleListProjects);
+  ipcMain.handle(CHANNELS.PROJECTS_SET_COVER, h.handleSetProjectCover);
 }
