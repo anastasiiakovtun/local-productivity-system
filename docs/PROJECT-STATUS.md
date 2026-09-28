@@ -55,15 +55,15 @@ Obsidian Focus Companion is a working local-first Electron/Vue desktop app that 
 - `docs/research/grill-session.md` — structured Grill evidence and decision traceability.
 - `docs/design/visual-artifact-decisions.md` — explanation of all seven files in `reference/`.
 - `DESIGN-HANDOFF.md` — implementation-ready visual and interaction specification.
+- `Anastasiia_Kovtun_3IXD_Dev5_Obsidiansample.md` — retained task and focus records from a real packaged one-minute workflow.
 
 ## Remaining submission work
 
-1. Generate and retain a real app-produced Obsidian Markdown sample named `Anastasiia_Kovtun_3IXD_Dev5_Obsidiansample.md`.
-2. Assemble the consolidated report with research, PRD summary, design choices, artifact explanations, generated vault examples, testing evidence, AI usage note, and reflection.
-3. Ask the author for personal AI-usage and reflection answers; review their wording without inventing experience.
-4. Export the final report as `Anastasiia_Kovtun_3IXD_Dev5_PRD.PDF`.
-5. Run final full tests, package verification, packaged smoke/lifecycle checks, visual review, and branch review.
-6. Merge into `main` only after the author approves the report and artifacts.
+1. Assemble the consolidated report with research, PRD summary, design choices, artifact explanations, generated vault examples, testing evidence, AI usage note, and reflection.
+2. Ask the author for personal AI-usage and reflection answers; review their wording without inventing experience.
+3. Export the final report as `Anastasiia_Kovtun_3IXD_Dev5_PRD.PDF`.
+4. Run final full tests, packaged smoke/lifecycle checks, visual review, and branch review.
+5. Merge into `main` only after the author approves the report and artifacts.
 
 ## Scope boundaries
 
