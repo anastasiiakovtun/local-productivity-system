@@ -2,6 +2,9 @@ module.exports = {
   packagerConfig: {
     asar: true,
   },
+  rebuildConfig: {
+    onlyModules: ['better-sqlite3'],
+  },
   plugins: [
     {
       name: '@electron-forge/plugin-vite',
