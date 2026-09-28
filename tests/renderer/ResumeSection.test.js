@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import ResumeSection from '../../src/components/base/ResumeSection.vue';
+import ResumeSection from '../../src/components/ResumeSection.vue';
 
 const stubs = {
   PhMapPinLine: { template: '<span/>' },

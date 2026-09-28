@@ -2,8 +2,8 @@
 import { ref, onMounted } from 'vue';
 import { PhPencil, PhX, PhFloppyDisk } from '@phosphor-icons/vue';
 import { useSessionStore } from '../stores/session.js';
-import ProjectCover from '../components/base/ProjectCover.vue';
-import ResumeSection from '../components/base/ResumeSection.vue';
+import ProjectCover from '../components/ProjectCover.vue';
+import ResumeSection from '../components/ResumeSection.vue';
 
 const props = defineProps({
   task: { type: Object, required: true },

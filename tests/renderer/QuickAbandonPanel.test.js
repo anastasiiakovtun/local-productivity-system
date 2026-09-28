@@ -2,7 +2,7 @@
 import { mount, flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import QuickAbandonPanel from '../../src/components/timer/QuickAbandonPanel.vue';
+import QuickAbandonPanel from '../../src/components/QuickAbandonPanel.vue';
 
 const stubs = {
   PhArrowLeft: { template: '<span/>' },

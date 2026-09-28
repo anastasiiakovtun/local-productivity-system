@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { PhClockCounterClockwise } from '@phosphor-icons/vue';
-import IconContainer from '../components/base/IconContainer.vue';
+import IconContainer from '../components/IconContainer.vue';
 
 const sessions = ref([]);
 const expandedId = ref(null);

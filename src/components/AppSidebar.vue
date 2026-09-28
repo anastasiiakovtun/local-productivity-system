@@ -7,7 +7,7 @@ import {
   PhSidebarSimple,
   PhTray,
 } from '@phosphor-icons/vue';
-import ProjectCover from '../base/ProjectCover.vue';
+import ProjectCover from './ProjectCover.vue';
 
 const props = defineProps({
   activeView: { type: String, required: true },

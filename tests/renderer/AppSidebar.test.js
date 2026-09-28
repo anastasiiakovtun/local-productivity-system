@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import AppSidebar from '../../src/components/layout/AppSidebar.vue';
+import AppSidebar from '../../src/components/AppSidebar.vue';
 
 const iconStubs = {
   PhHouse: { template: '<svg data-icon="house" />' },

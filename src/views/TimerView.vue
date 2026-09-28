@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from 'vue';
 import { useSessionStore } from '../stores/session.js';
-import TimerModal from '../components/timer/TimerModal.vue';
-import QuickAbandonPanel from '../components/timer/QuickAbandonPanel.vue';
+import TimerModal from '../components/TimerModal.vue';
+import QuickAbandonPanel from '../components/QuickAbandonPanel.vue';
 
 const props = defineProps({
   showFloatingToggle: { type: Boolean, default: false },
