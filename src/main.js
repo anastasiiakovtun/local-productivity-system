@@ -7,6 +7,12 @@ import { registerVaultIoHandlers } from './main/vault-io-handlers.js';
 import { guardPath } from './main/vault-paths.js';
 import { readNote } from './main/note-reader.js';
 import { writeSection } from './main/section-writer.js';
+import { openDatabase } from './main/db.js';
+import { TaskStore } from './main/task-store.js';
+import { TaskEventStore } from './main/task-event-store.js';
+import { SessionStore } from './main/session-store.js';
+import { CheckpointStore } from './main/checkpoint-store.js';
+import { registerAppHandlers } from './main/app-handlers.js';
 
 app.enableSandbox();
 
@@ -25,14 +31,11 @@ function createWindow() {
     );
   }
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
+  mainWindow.on('closed', () => { mainWindow = null; });
 }
 
 let vaultRoot = null;
 
-// Wraps validateVault so main.js can capture the canonical path on a successful selection.
 function trackingValidateVault(candidatePath) {
   return validateVault(candidatePath).then((result) => {
     if (result.status === 'selected') vaultRoot = result.path;
@@ -41,20 +44,39 @@ function trackingValidateVault(candidatePath) {
 }
 
 app.whenReady().then(() => {
+  // Open SQLite in the app user-data directory
+  const dbPath = path.join(app.getPath('userData'), 'focus.db');
+  const db = openDatabase(dbPath);
+
+  const eventStore     = new TaskEventStore(db, () => vaultRoot ?? '');
+  const taskStore      = new TaskStore({ db, eventStore, vaultRoot: null, readNote, writeSection,
+    get vaultRoot() { return vaultRoot; },
+  });
+  const sessionStore   = new SessionStore(db);
+  const checkpointStore = new CheckpointStore(db, () => vaultRoot ?? '');
+
+  // Patch TaskStore to use live vaultRoot
+  taskStore._vaultRoot = new Proxy({}, { get: () => vaultRoot });
+
   registerVaultSelectionHandler({
-    ipcMain,
-    dialog,
+    ipcMain, dialog,
     getMainWindow: () => mainWindow,
     validateVault: trackingValidateVault,
   });
+
   registerVaultIoHandlers({
     ipcMain,
     getMainWindow: () => mainWindow,
     getVaultRoot: () => vaultRoot,
-    guardPath,
-    readNote,
-    writeSection,
+    guardPath, readNote, writeSection,
   });
+
+  registerAppHandlers({
+    ipcMain, db,
+    getMainWindow: () => mainWindow,
+    taskStore, sessionStore, checkpointStore,
+  });
+
   createWindow();
 
   app.on('activate', () => {
