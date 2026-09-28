@@ -56,14 +56,13 @@ Obsidian Focus Companion is a working local-first Electron/Vue desktop app that 
 - `docs/design/visual-artifact-decisions.md` — explanation of all seven files in `reference/`.
 - `DESIGN-HANDOFF.md` — implementation-ready visual and interaction specification.
 - `Anastasiia_Kovtun_3IXD_Dev5_Obsidiansample.md` — retained task and focus records from a real packaged one-minute workflow.
+- `docs/submission/Anastasiia_Kovtun_3IXD_Dev5_PRD.md` — consolidated report source with the author’s reviewed AI note and reflection.
+- `Anastasiia_Kovtun_3IXD_Dev5_PRD.PDF` — 14-page submission PDF with verified text, images, page layout, and metadata.
 
 ## Remaining submission work
 
-1. Assemble the consolidated report with research, PRD summary, design choices, artifact explanations, generated vault examples, testing evidence, AI usage note, and reflection.
-2. Ask the author for personal AI-usage and reflection answers; review their wording without inventing experience.
-3. Export the final report as `Anastasiia_Kovtun_3IXD_Dev5_PRD.PDF`.
-4. Run final full tests, packaged smoke/lifecycle checks, visual review, and branch review.
-5. Merge into `main` only after the author approves the report and artifacts.
+1. Run final full tests, packaged smoke/lifecycle checks, visual review, and branch review.
+2. Merge into `main` only after the author approves the report and artifacts.
 
 ## Scope boundaries
 

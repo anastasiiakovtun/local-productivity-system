@@ -29,6 +29,8 @@ Windows has not been manually verified.
 - [Design handoff](DESIGN-HANDOFF.md)
 - [Visual artifact decisions](docs/design/visual-artifact-decisions.md)
 - [Generated Obsidian sample](Anastasiia_Kovtun_3IXD_Dev5_Obsidiansample.md)
+- [Submission report source](docs/submission/Anastasiia_Kovtun_3IXD_Dev5_PRD.md)
+- [Submission report PDF](Anastasiia_Kovtun_3IXD_Dev5_PRD.PDF)
 - [Architecture decision](docs/adr/0001-use-electron-vue.md)
 
 ## Setup
