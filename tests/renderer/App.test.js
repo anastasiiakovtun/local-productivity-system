@@ -277,6 +277,48 @@ describe('App focus flow', () => {
     expect(w.findComponent({ name: 'BreakView' }).exists()).toBe(false);
   });
 
+  it('lets the user change and persist the break duration before starting', async () => {
+    window.app.getPreferences.mockResolvedValue({
+      status: 'success',
+      data: { vaultPath: '/vault', defaultFocusMinutes: 25, defaultBreakMinutes: 5 },
+    });
+    window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
+    const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
+    await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('started');
+    await w.findComponent({ name: 'TimerView' }).vm.$emit('end');
+    await w.findComponent({ name: 'CheckpointView' }).vm.$emit('saved');
+    await flushPromises();
+
+    const duration = w.find('input[aria-label="Break duration in minutes"]');
+    expect(duration.exists()).toBe(true);
+    await duration.setValue('10');
+    await w.find('button[aria-label="Take Break"]').trigger('click');
+    await flushPromises();
+
+    expect(window.app.setPreferences).toHaveBeenCalledWith({ defaultBreakMinutes: 10 });
+    expect(w.findComponent({ name: 'BreakView' }).props('breakMinutes')).toBe(10);
+  });
+
+  it('rejects break durations outside one to sixty minutes', async () => {
+    window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
+    const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
+    await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('started');
+    await w.findComponent({ name: 'TimerView' }).vm.$emit('end');
+    await w.findComponent({ name: 'CheckpointView' }).vm.$emit('saved');
+    await flushPromises();
+
+    await w.find('input[aria-label="Break duration in minutes"]').setValue('61');
+    await w.find('button[aria-label="Take Break"]').trigger('click');
+    await flushPromises();
+
+    expect(w.find('[role="alert"]').text()).toContain('between 1 and 60 minutes');
+    expect(w.findComponent({ name: 'BreakView' }).exists()).toBe(false);
+  });
+
   it('Take Break does not call any IPC write (non-durable)', async () => {
     window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
     window.app.saveCheckpoint = vi.fn().mockResolvedValue({ status: 'success' });
