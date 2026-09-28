@@ -7,6 +7,11 @@ const emit = defineEmits(['focus']);
 const newTitle = ref('');
 const newProject = ref('');
 const error = ref(null);
+const editingId = ref(null);
+const editTitle = ref('');
+const editProject = ref('');
+const editError = ref(null);
+const editSaving = ref(false);
 
 onMounted(() => taskStore.fetchInbox());
 
@@ -32,6 +37,34 @@ async function complete(id) {
 
 async function remove(id) {
   await taskStore.deleteTask(id);
+}
+
+function startEdit(task) {
+  editingId.value = task.id;
+  editTitle.value = task.title;
+  editProject.value = task.project_label ?? '';
+  editError.value = null;
+}
+
+function cancelEdit() {
+  editingId.value = null;
+  editError.value = null;
+}
+
+async function saveEdit() {
+  if (!editTitle.value.trim()) return;
+  editError.value = null;
+  editSaving.value = true;
+  const r = await taskStore.editTask(editingId.value, {
+    title: editTitle.value.trim(),
+    projectLabel: editProject.value.trim() || null,
+  });
+  editSaving.value = false;
+  if (r.status === 'success') {
+    editingId.value = null;
+  } else {
+    editError.value = r.reason ?? 'Failed to save';
+  }
 }
 </script>
 
@@ -61,11 +94,21 @@ async function remove(id) {
 
     <ul v-if="taskStore.inbox.length" class="task-list">
       <li v-for="task in taskStore.inbox" :key="task.id" class="task-row">
-        <span class="task-title">{{ task.title }}</span>
-        <span v-if="task.project_label" class="task-project">[{{ task.project_label }}]</span>
-        <button type="button" class="btn-icon" aria-label="Complete" @click="complete(task.id)">✓</button>
-        <button type="button" class="btn-icon btn-delete" aria-label="Delete" @click="remove(task.id)">✕</button>
-        <button type="button" class="btn-icon" aria-label="Focus" @click="emit('focus', task)">▶</button>
+        <template v-if="editingId === task.id">
+          <input type="text" aria-label="Edit title" v-model="editTitle" class="capture-title" />
+          <input type="text" aria-label="Edit project" v-model="editProject" class="capture-project" placeholder="Project (optional)" />
+          <p v-if="editError" role="alert" class="error">{{ editError }}</p>
+          <button type="button" aria-label="Save edit" :disabled="!editTitle.trim() || editSaving" @click="saveEdit">Save</button>
+          <button type="button" aria-label="Cancel edit" @click="cancelEdit">Cancel</button>
+        </template>
+        <template v-else>
+          <span class="task-title">{{ task.title }}</span>
+          <span v-if="task.project_label" class="task-project">[{{ task.project_label }}]</span>
+          <button type="button" class="btn-icon" aria-label="Complete" @click="complete(task.id)">✓</button>
+          <button type="button" class="btn-icon btn-delete" aria-label="Delete" @click="remove(task.id)">✕</button>
+          <button type="button" class="btn-icon" aria-label="Edit" @click="startEdit(task)">✎</button>
+          <button type="button" class="btn-icon" aria-label="Focus" @click="emit('focus', task)">▶</button>
+        </template>
       </li>
     </ul>
     <p v-else class="empty-state">No tasks in Inbox.</p>

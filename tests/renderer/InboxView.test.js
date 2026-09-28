@@ -15,6 +15,10 @@ beforeEach(() => {
   };
 });
 
+beforeEach(() => {
+  window.app.editTask = vi.fn().mockResolvedValue({ status: 'success', task: {} });
+});
+
 function tasks(...items) {
   return items.map((title, i) => ({ id: `^task-${i}`, title, project_label: null, status: 'open' }));
 }
@@ -106,5 +110,74 @@ describe('InboxView', () => {
     await w.find('button[aria-label="Focus"]').trigger('click');
     expect(w.emitted('focus')).toHaveLength(1);
     expect(w.emitted('focus')[0][0]).toMatchObject({ id: '^task-0', title: 'Write essay' });
+  });
+
+  it('each task row shows an Edit button', async () => {
+    window.app.listTasks.mockResolvedValue({ status: 'success', data: tasks('Write essay') });
+    const w = mount(InboxView);
+    await flushPromises();
+    expect(w.find('button[aria-label="Edit"]').exists()).toBe(true);
+  });
+
+  it('clicking Edit opens an inline form with current title and project', async () => {
+    const task = { id: '^task-0', title: 'Write essay', project_label: 'Thesis', status: 'open' };
+    window.app.listTasks.mockResolvedValue({ status: 'success', data: [task] });
+    const w = mount(InboxView);
+    await flushPromises();
+    await w.find('button[aria-label="Edit"]').trigger('click');
+    await flushPromises();
+    expect(w.find('input[aria-label="Edit title"]').element.value).toBe('Write essay');
+    expect(w.find('input[aria-label="Edit project"]').element.value).toBe('Thesis');
+  });
+
+  it('empty title disables Save in the edit form', async () => {
+    const task = { id: '^task-0', title: 'Write essay', project_label: null, status: 'open' };
+    window.app.listTasks.mockResolvedValue({ status: 'success', data: [task] });
+    const w = mount(InboxView);
+    await flushPromises();
+    await w.find('button[aria-label="Edit"]').trigger('click');
+    await w.find('input[aria-label="Edit title"]').setValue('');
+    await flushPromises();
+    expect(w.find('button[aria-label="Save edit"]').element.disabled).toBe(true);
+  });
+
+  it('Cancel edit dismisses the form without calling editTask', async () => {
+    window.app.listTasks.mockResolvedValue({ status: 'success', data: tasks('Write essay') });
+    const w = mount(InboxView);
+    await flushPromises();
+    await w.find('button[aria-label="Edit"]').trigger('click');
+    await w.find('button[aria-label="Cancel edit"]').trigger('click');
+    await flushPromises();
+    expect(w.find('input[aria-label="Edit title"]').exists()).toBe(false);
+    expect(window.app.editTask).not.toHaveBeenCalled();
+  });
+
+  it('Save calls editTask and refreshes the list', async () => {
+    const task = { id: '^task-0', title: 'Old title', project_label: null, status: 'open' };
+    window.app.listTasks
+      .mockResolvedValueOnce({ status: 'success', data: [task] })
+      .mockResolvedValueOnce({ status: 'success', data: [{ ...task, title: 'New title' }] });
+    const w = mount(InboxView);
+    await flushPromises();
+    await w.find('button[aria-label="Edit"]').trigger('click');
+    await w.find('input[aria-label="Edit title"]').setValue('New title');
+    await w.find('button[aria-label="Save edit"]').trigger('click');
+    await flushPromises();
+    expect(window.app.editTask).toHaveBeenCalledWith('^task-0', expect.objectContaining({ title: 'New title' }));
+    expect(window.app.listTasks).toHaveBeenCalledTimes(2);
+    expect(w.find('input[aria-label="Edit title"]').exists()).toBe(false);
+  });
+
+  it('Save keeps form open and shows error on failure', async () => {
+    window.app.editTask.mockResolvedValueOnce({ status: 'error', reason: 'not-found' });
+    window.app.listTasks.mockResolvedValue({ status: 'success', data: tasks('Write essay') });
+    const w = mount(InboxView);
+    await flushPromises();
+    await w.find('button[aria-label="Edit"]').trigger('click');
+    await w.find('input[aria-label="Edit title"]').setValue('Changed');
+    await w.find('button[aria-label="Save edit"]').trigger('click');
+    await flushPromises();
+    expect(w.find('input[aria-label="Edit title"]').exists()).toBe(true);
+    expect(w.find('[role="alert"]').text()).toContain('not-found');
   });
 });

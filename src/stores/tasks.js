@@ -54,9 +54,15 @@ export const useTaskStore = defineStore('tasks', () => {
     return r;
   }
 
+  async function editTask(id, changes) {
+    const r = await window.app.editTask(id, changes);
+    if (r.status === 'success') await fetchInbox();
+    return r;
+  }
+
   return {
     inbox, today, completed,
     fetchInbox, fetchToday, fetchCompleted,
-    createTask, completeTask, reopenTask, deleteTask,
+    createTask, editTask, completeTask, reopenTask, deleteTask,
   };
 });
