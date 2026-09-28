@@ -3,6 +3,10 @@ import path from 'node:path';
 import { createMainWindowOptions } from './main/window-options.js';
 import { registerVaultSelectionHandler } from './main/vault-selection-handler.js';
 import { validateVault } from './main/vault-validator.js';
+import { registerVaultIoHandlers } from './main/vault-io-handlers.js';
+import { guardPath } from './main/vault-paths.js';
+import { readNote } from './main/note-reader.js';
+import { writeSection } from './main/section-writer.js';
 
 app.enableSandbox();
 
@@ -26,12 +30,30 @@ function createWindow() {
   });
 }
 
+let vaultRoot = null;
+
+// Wraps validateVault so main.js can capture the canonical path on a successful selection.
+function trackingValidateVault(candidatePath) {
+  return validateVault(candidatePath).then((result) => {
+    if (result.status === 'selected') vaultRoot = result.path;
+    return result;
+  });
+}
+
 app.whenReady().then(() => {
   registerVaultSelectionHandler({
     ipcMain,
     dialog,
     getMainWindow: () => mainWindow,
-    validateVault,
+    validateVault: trackingValidateVault,
+  });
+  registerVaultIoHandlers({
+    ipcMain,
+    getMainWindow: () => mainWindow,
+    getVaultRoot: () => vaultRoot,
+    guardPath,
+    readNote,
+    writeSection,
   });
   createWindow();
 

@@ -15,7 +15,7 @@ try {
   assert.deepEqual(rendererBoundary, {
     requireType: 'undefined',
     processType: 'undefined',
-    vaultKeys: ['select'],
+    vaultKeys: ['select', 'readNote', 'writeSection'],
   });
 
   const preferences = await electronApp.evaluate(({ BrowserWindow }) => {
