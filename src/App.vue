@@ -75,6 +75,11 @@ async function onCheckpointSaved() {
 }
 function onTakeBreak() { screen.value = 'break'; }
 function onFinishFlow() { screen.value = 'list'; focusTask.value = null; }
+
+async function onMinimizeTimer() {
+  screen.value = 'list';
+  try { await window.app.openFloatingTimer(); } catch { /* non-fatal */ }
+}
 </script>
 
 <template>
@@ -106,6 +111,7 @@ function onFinishFlow() { screen.value = 'list'; focusTask.value = null; }
         :show-floating-toggle="floatingTimerEnabled"
         @end="onEnd"
         @abandoned="onAbandoned"
+        @minimize="onMinimizeTimer"
       />
     </template>
 

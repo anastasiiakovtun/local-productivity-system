@@ -204,6 +204,22 @@ describe('App focus flow', () => {
     expect(w.findComponent({ name: 'TimerView' }).exists()).toBe(false);
   });
 
+  it('minimize from TimerView calls openFloatingTimer and returns to list', async () => {
+    window.app.openFloatingTimer = vi.fn().mockResolvedValue({ ok: true });
+    window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
+    const w = await mountWithVault();
+    await w.find('button[aria-label="Inbox"]').trigger('click');
+    await flushPromises();
+    await w.findComponent({ name: 'InboxView' }).vm.$emit('focus', inboxTask);
+    await flushPromises();
+    await w.findComponent({ name: 'ResumePacketView' }).vm.$emit('started');
+    await flushPromises();
+    await w.findComponent({ name: 'TimerView' }).vm.$emit('minimize');
+    await flushPromises();
+    expect(window.app.openFloatingTimer).toHaveBeenCalled();
+    expect(w.findComponent({ name: 'TimerView' }).exists()).toBe(false);
+  });
+
   it('saved from CheckpointView shows break offer screen', async () => {
     window.app.listTasks = vi.fn().mockResolvedValue({ status: 'success', data: [inboxTask] });
     const w = await mountWithVault();

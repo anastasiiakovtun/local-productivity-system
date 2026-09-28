@@ -20,30 +20,20 @@ app.enableSandbox();
 let mainWindow = null;
 let floatingWindow = null;
 
-function openFloatingWindow(sessionStore) {
-  if (floatingWindow && !floatingWindow.isDestroyed()) { floatingWindow.focus(); return; }
-  const floatingPreloadPath = path.join(__dirname, 'preload/floating-api.js');
-  floatingWindow = new BrowserWindow({
-    width: 300, height: 64,
-    frame: false, alwaysOnTop: true, resizable: false,
-    webPreferences: {
-      nodeIntegration: false, contextIsolation: true, sandbox: true,
-      preload: floatingPreloadPath,
-    },
-  });
-  const floatingHtmlPath = path.join(__dirname, '../floating.html');
-  floatingWindow.loadFile(floatingHtmlPath);
-  floatingWindow.on('closed', () => { floatingWindow = null; });
-
-  // Register floating IPC — only accept calls from floatingWindow.webContents
+function registerFloatingIpc(sessionStore) {
+  // Called once at app startup — registers all floating:* IPC handlers with sender guards.
   ipcMain.handle('floating:get-state', (event) => {
     if (!floatingWindow || event.sender !== floatingWindow.webContents) return null;
     const active = sessionStore.getActiveSession?.();
     if (!active) return null;
+    const startMs = new Date(active.started_occurred_at_utc).getTime();
+    const elapsed = Math.floor((Date.now() - startMs) / 1000) - (active.paused_seconds ?? 0);
+    const totalSeconds = (active.planned_minutes ?? 25) * 60;
+    const remaining = totalSeconds - elapsed;
     return {
-      timerState: active.status === 'paused' ? 'paused' : 'running',
-      secondsRemaining: 0,
-      elapsedOverflow: 0,
+      timerState: active.status === 'paused' ? 'paused' : remaining <= 0 ? 'overflow' : 'running',
+      secondsRemaining: Math.max(0, remaining),
+      elapsedOverflow: remaining < 0 ? -remaining : 0,
       taskTitle: active.task_title,
     };
   });
@@ -60,6 +50,22 @@ function openFloatingWindow(sessionStore) {
     mainWindow?.focus();
     return { ok: true };
   });
+}
+
+function openFloatingWindow() {
+  if (floatingWindow && !floatingWindow.isDestroyed()) { floatingWindow.focus(); return; }
+  const floatingPreloadPath = path.join(__dirname, 'preload/floating-api.js');
+  floatingWindow = new BrowserWindow({
+    width: 300, height: 64,
+    frame: false, alwaysOnTop: true, resizable: false,
+    webPreferences: {
+      nodeIntegration: false, contextIsolation: true, sandbox: true,
+      preload: floatingPreloadPath,
+    },
+  });
+  const floatingHtmlPath = path.join(__dirname, '../floating.html');
+  floatingWindow.loadFile(floatingHtmlPath);
+  floatingWindow.on('closed', () => { floatingWindow = null; });
 }
 
 function closeFloatingWindow() {
@@ -129,11 +135,12 @@ app.whenReady().then(() => {
     guardPath, readNote, writeSection,
   });
 
+  registerFloatingIpc(sessionStore);
   registerAppHandlers({
     ipcMain, db,
     getMainWindow: () => mainWindow,
     taskStore, sessionStore, checkpointStore, projectCoverStore,
-    openFloatingWindow: () => openFloatingWindow(sessionStore),
+    openFloatingWindow,
     closeFloatingWindow,
   });
 

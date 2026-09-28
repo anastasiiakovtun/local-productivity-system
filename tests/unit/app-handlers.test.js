@@ -208,4 +208,31 @@ describe('handleAbandonSession — Focus Log', () => {
       await rm(vaultRoot, { recursive: true, force: true });
     }
   });
+
+  it('passes outcome string to writeAbandonLog', async () => {
+    let vaultRoot = await mkdtemp(path.join(os.tmpdir(), 'focus-abandon3-'));
+    try {
+      const db = openDatabase(':memory:');
+      const mainWindow = makeWindow();
+      const sessionStore = new SessionStore(db);
+      const { CheckpointStore } = await import('../../src/main/checkpoint-store.js');
+      const checkpointStore = new CheckpointStore(db, () => vaultRoot);
+      const taskStore = { _db: db, createTask: vi.fn(), editTask: vi.fn(), completeTask: vi.fn(), reopenTask: vi.fn(), deleteTask: vi.fn(), listTasks: vi.fn().mockReturnValue([]) };
+      const handlers = createAppHandlers({ getMainWindow: () => mainWindow, taskStore, sessionStore, checkpointStore, db, logger: { error: vi.fn() } });
+      const validEvent = { sender: mainWindow.webContents, senderFrame: mainWindow.webContents.mainFrame };
+
+      db.prepare(`INSERT INTO tasks (id, title, status, project_label, start_date, due_date, estimate_minutes, created_local_date, created_local_time, created_utc_offset, created_timezone, created_occurred_at_utc, updated_local_date, updated_local_time, updated_utc_offset, updated_timezone, updated_occurred_at_utc) VALUES ('^task-abc', 'Write essay', 'open', null, NULL, NULL, NULL, '2026-09-28', '10:00:00', '+02:00', 'Europe/Berlin', '2026-09-28T08:00:00Z', '2026-09-28', '10:00:00', '+02:00', 'Europe/Berlin', '2026-09-28T08:00:00Z')`).run();
+      const startResult = await handlers.handleStartSession(validEvent, '^task-abc', 25);
+      const sessionId = startResult.data.session_id;
+
+      await handlers.handleAbandonSession(validEvent, sessionId, 'Ran out of time.');
+
+      const logPath = path.join(vaultRoot, 'Productivity', 'Focus Logs', 'task-abc.md');
+      const content = await readFile(logPath, 'utf8');
+      expect(content).toContain('abandoned');
+      expect(content).toContain('Ran out of time.');
+    } finally {
+      await rm(vaultRoot, { recursive: true, force: true });
+    }
+  });
 });

@@ -148,13 +148,13 @@ export function createAppHandlers({ getMainWindow, taskStore, sessionStore, chec
     try { return ok(sessionStore.resumeSession(sessionId)); } catch { return unexpectedError(); }
   }
 
-  async function handleAbandonSession(event, sessionId) {
+  async function handleAbandonSession(event, sessionId, outcome = null) {
     if (!guard(event)) return unexpectedError();
     if (typeof sessionId !== 'string' || !sessionId) return err('sessionId required');
     try {
       const result = sessionStore.abandonSession(sessionId);
       if (checkpointStore) {
-        try { await checkpointStore.writeAbandonLog(sessionId, null); } catch { /* non-fatal: log unavailable */ }
+        try { await checkpointStore.writeAbandonLog(sessionId, outcome); } catch { /* non-fatal: log unavailable */ }
       }
       return ok(result);
     } catch { return unexpectedError(); }
