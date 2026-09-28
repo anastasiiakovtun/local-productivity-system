@@ -29,7 +29,7 @@ describe('split stylesheet structure', () => {
       './workflow.css',
     ]);
     expect(createHash('sha256').update(source).digest('hex')).toBe(
-      '53132e7161023d629dad6443c3058e4c37d714af9a3495c95a1b00819167290c',
+      '870884d3bf3df686e046bcb093449addc53a3f30bb68cc3cb4c554bc143c0d5f',
     );
   });
 
@@ -50,6 +50,7 @@ describe('split stylesheet structure', () => {
     expect(source).toContain('.task-row::before');
     expect(source).toContain('.timer-modal::before');
     expect(source).toContain('linear-gradient(180deg,');
+    expect(source).toContain('padding: 1px;');
     expect(source).toContain('var(--line-surface-top)');
     expect(source).toContain('var(--line-surface-bottom)');
     expect(source).toContain('-webkit-mask-composite: xor;');
