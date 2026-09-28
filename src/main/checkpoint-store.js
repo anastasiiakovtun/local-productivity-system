@@ -89,32 +89,71 @@ export class CheckpointStore {
     }
     const session = this._getSession.get(sessionId);
     if (!session) return;
-    const { loggedTimestamp } = await import('./logged-timestamp.js');
-    const ts = loggedTimestamp();
+    const ts = session.ended_occurred_at_utc
+      ? {
+          local_date: session.ended_local_date,
+          local_time: session.ended_local_time,
+          utc_offset: session.ended_utc_offset,
+          timezone: session.ended_timezone,
+          occurred_at_utc: session.ended_occurred_at_utc,
+        }
+      : (await import('./logged-timestamp.js')).loggedTimestamp();
     const actualSeconds = session.ended_occurred_at_utc
       ? Math.round((new Date(session.ended_occurred_at_utc).getTime() - new Date(session.started_occurred_at_utc).getTime()) / 1000) - (session.paused_seconds ?? 0)
       : 0;
     const effectiveOutcome = typeof outcome === 'string' && outcome.trim() ? outcome.trim() : null;
-    await this._appendFocusLogBlock(vaultRoot, session, { outcome: effectiveOutcome, status: 'abandoned', nextAction: null, ts, actualSeconds, overflowSeconds: 0 });
+    await this._appendFocusLogBlock(vaultRoot, session, { eventType: 'session_cancelled', outcome: effectiveOutcome, status: 'abandoned', nextAction: null, ts, actualSeconds, overflowSeconds: 0 });
+  }
+
+  async writeSessionStartLog(session) {
+    const vaultRoot = this._getVaultRoot?.();
+    if (typeof vaultRoot !== 'string' || vaultRoot.length === 0) {
+      throw new Error('vault-not-selected');
+    }
+    if (!session) return;
+    await this._appendFocusLogBlock(vaultRoot, session, {
+      eventType: 'session_started',
+      status: 'active',
+      outcome: null,
+      nextAction: null,
+      ts: {
+        local_date: session.started_local_date,
+        local_time: session.started_local_time,
+        utc_offset: session.started_utc_offset,
+        timezone: session.started_timezone,
+        occurred_at_utc: session.started_occurred_at_utc,
+      },
+      actualSeconds: null,
+      overflowSeconds: null,
+    });
   }
 
   async _appendToFocusLog(vaultRoot, session, { outcome, status, nextAction, ts, actualSeconds, overflowSeconds }) {
-    await this._appendFocusLogBlock(vaultRoot, session, { outcome, status, nextAction, ts, actualSeconds, overflowSeconds });
+    await this._appendFocusLogBlock(vaultRoot, session, { eventType: 'session_completed', outcome, status, nextAction, ts, actualSeconds, overflowSeconds });
   }
 
-  async _appendFocusLogBlock(vaultRoot, session, { outcome, status, nextAction, ts, actualSeconds, overflowSeconds }) {
+  async _appendFocusLogBlock(vaultRoot, session, { eventType, outcome, status, nextAction, ts, actualSeconds, overflowSeconds }) {
     if (!session) return;
     const logDir = path.join(vaultRoot, 'Productivity', 'Focus Logs');
     const logPath = path.join(logDir, `${session.task_id.replace('^', '')}.md`);
     await this._fsApi.mkdir(logDir, { recursive: true });
 
     const plannedMin = session.planned_minutes;
-    const actualMin  = Math.round(actualSeconds / 60);
-    const overflowMin = Math.round(overflowSeconds / 60);
+    const actualMin = actualSeconds == null ? null : Math.round(actualSeconds / 60);
+    const overflowMin = overflowSeconds == null ? null : Math.round(overflowSeconds / 60);
 
-    let block = `## ${ts.local_date} ${ts.local_time.slice(0, 5)} ${ts.utc_offset} — ${status}\n\n`;
-    block += `**Task:** ${session.task_title}  \n`;
-    block += `**Planned:** ${plannedMin} min | **Actual:** ${actualMin} min | **Overflow:** ${overflowMin} min  \n`;
+    let block = '## Focus session event\n\n';
+    block += `**Date:** ${ts.local_date}  \n`;
+    block += `**Time:** ${ts.local_time}  \n`;
+    block += `**UTC offset:** ${ts.utc_offset}  \n`;
+    block += `**Timezone:** ${ts.timezone}  \n`;
+    block += `**Event:** ${eventType}  \n`;
+    block += `**Status:** ${status}  \n`;
+    block += `**Task:** ${session.task_title} (\`${session.task_id}\`)  \n`;
+    if (session.project_label) block += `**Project:** ${session.project_label}  \n`;
+    block += `**Planned:** ${plannedMin} min  \n`;
+    if (actualMin != null) block += `**Actual:** ${actualMin} min  \n`;
+    if (overflowMin != null) block += `**Overflow:** ${overflowMin} min  \n`;
     if (outcome != null) block += `**Outcome:** ${outcome}  \n`;
     if (nextAction) block += `**Next Action:** ${nextAction}  \n`;
     block += '\n---\n\n';

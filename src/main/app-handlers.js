@@ -129,6 +129,7 @@ export function createAppHandlers({ getMainWindow, taskStore, sessionStore, chec
         projectLabel: task?.project_label ?? null,
         plannedMinutes,
       });
+      if (checkpointStore) await checkpointStore.writeSessionStartLog(session);
       return ok(session);
     } catch (e) {
       logger.error('sessions:start failed', e);
