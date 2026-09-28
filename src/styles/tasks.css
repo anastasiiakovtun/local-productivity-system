@@ -9,10 +9,15 @@
 }
 
 /* ─── Views ───────────────────────────────────────────── */
+.view {
+  position: relative;
+  min-height: calc(100vh - 64px); /* fill main-content so empty state can center */
+}
+
 .view h2 {
   font-size: var(--text-title);
-  font-weight: 650;
-  letter-spacing: -0.025em;
+  font-weight: 400;
+  letter-spacing: -0.02em;
   margin-bottom: var(--space-5);
   color: var(--color-text);
 }
@@ -234,17 +239,23 @@ button:focus-visible {
 
 /* ─── Empty + error states ────────────────────────────── */
 .empty-state {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -20%); /* slightly above true center, visually balanced */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
-  margin: auto;
-  min-height: 40vh;
   gap: var(--space-3);
   color: var(--color-text-faint);
   font-size: var(--text-md);
-  margin-top: var(--space-2);
+  pointer-events: none; /* let clicks pass to content above */
+}
+
+/* Override for views that have no positioned parent (fallback) */
+.view .empty-state {
+  pointer-events: auto;
 }
 .empty-state p { margin: 0; }
 .icon-container {

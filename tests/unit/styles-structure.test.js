@@ -29,7 +29,7 @@ describe('split stylesheet structure', () => {
       './workflow.css',
     ]);
     expect(createHash('sha256').update(source).digest('hex')).toBe(
-      'd30bbedfecc2918b5578d81754f7ed7bd602cf5ecba981896f58d80a9329f97f',
+      '645c684943d1bda8c40a9dcf450f64d2ab350ef7b4e10e232d1f8f75085afd79',
     );
   });
 
