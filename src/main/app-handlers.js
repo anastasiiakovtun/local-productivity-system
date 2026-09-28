@@ -4,6 +4,7 @@ import {
   validateEditTask,
   validateListTasks,
   validatePreferences,
+  validateStartSession,
 } from '../shared/app-schema.js';
 
 const ok = (data) => ({ status: 'success', data });
@@ -18,7 +19,7 @@ function isSenderValid(event, mainWindow) {
   );
 }
 
-export function createAppHandlers({ getMainWindow, taskStore, db, logger = console }) {
+export function createAppHandlers({ getMainWindow, taskStore, sessionStore, db, logger = console }) {
   function guard(event) {
     if (!isSenderValid(event, getMainWindow())) return false;
     return true;
@@ -111,6 +112,61 @@ export function createAppHandlers({ getMainWindow, taskStore, db, logger = conso
     try { return ok(taskStore.listTasks({ view })); } catch { return unexpectedError(); }
   }
 
+  async function handleStartSession(event, taskId, plannedMinutes) {
+    if (!guard(event)) return unexpectedError();
+    const validErr = validateStartSession(taskId, plannedMinutes);
+    if (validErr) return err(validErr);
+    try {
+      const task = taskStore._db
+        ? taskStore._db.prepare('SELECT * FROM tasks WHERE id = ?').get(taskId)
+        : null;
+      const session = sessionStore.startSession({
+        taskId,
+        taskTitle: task?.title ?? taskId,
+        projectLabel: task?.project_label ?? null,
+        plannedMinutes,
+      });
+      return ok(session);
+    } catch (e) {
+      logger.error('sessions:start failed', e);
+      return unexpectedError();
+    }
+  }
+
+  async function handlePauseSession(event, sessionId) {
+    if (!guard(event)) return unexpectedError();
+    if (typeof sessionId !== 'string' || !sessionId) return err('sessionId required');
+    try { return ok(sessionStore.pauseSession(sessionId)); } catch { return unexpectedError(); }
+  }
+
+  async function handleResumeSession(event, sessionId) {
+    if (!guard(event)) return unexpectedError();
+    if (typeof sessionId !== 'string' || !sessionId) return err('sessionId required');
+    try { return ok(sessionStore.resumeSession(sessionId)); } catch { return unexpectedError(); }
+  }
+
+  async function handleAbandonSession(event, sessionId) {
+    if (!guard(event)) return unexpectedError();
+    if (typeof sessionId !== 'string' || !sessionId) return err('sessionId required');
+    try { return ok(sessionStore.abandonSession(sessionId)); } catch { return unexpectedError(); }
+  }
+
+  async function handleGetActiveSession(event) {
+    if (!guard(event)) return unexpectedError();
+    try { return ok(sessionStore.getActiveSession()); } catch { return unexpectedError(); }
+  }
+
+  async function handleGetLastCheckpoint(event, taskId) {
+    if (!guard(event)) return unexpectedError();
+    if (typeof taskId !== 'string' || !taskId) return err('taskId required');
+    try { return ok(sessionStore.getLastCheckpointForTask(taskId)); } catch { return unexpectedError(); }
+  }
+
+  async function handleListSessions(event, filters) {
+    if (!guard(event)) return unexpectedError();
+    try { return ok(sessionStore.listSessions(filters ?? {})); } catch { return unexpectedError(); }
+  }
+
   return {
     handleGetPreferences,
     handleSetPreferences,
@@ -120,17 +176,31 @@ export function createAppHandlers({ getMainWindow, taskStore, db, logger = conso
     handleReopenTask,
     handleDeleteTask,
     handleListTasks,
+    handleStartSession,
+    handlePauseSession,
+    handleResumeSession,
+    handleAbandonSession,
+    handleGetActiveSession,
+    handleGetLastCheckpoint,
+    handleListSessions,
   };
 }
 
 export function registerAppHandlers({ ipcMain, ...deps }) {
   const h = createAppHandlers(deps);
-  ipcMain.handle(CHANNELS.GET_PREFERENCES,  h.handleGetPreferences);
-  ipcMain.handle(CHANNELS.SET_PREFERENCES,  h.handleSetPreferences);
-  ipcMain.handle(CHANNELS.TASKS_CREATE,     h.handleCreateTask);
-  ipcMain.handle(CHANNELS.TASKS_EDIT,       h.handleEditTask);
-  ipcMain.handle(CHANNELS.TASKS_COMPLETE,   h.handleCompleteTask);
-  ipcMain.handle(CHANNELS.TASKS_REOPEN,     h.handleReopenTask);
-  ipcMain.handle(CHANNELS.TASKS_DELETE,     h.handleDeleteTask);
-  ipcMain.handle(CHANNELS.TASKS_LIST,       h.handleListTasks);
+  ipcMain.handle(CHANNELS.GET_PREFERENCES,    h.handleGetPreferences);
+  ipcMain.handle(CHANNELS.SET_PREFERENCES,    h.handleSetPreferences);
+  ipcMain.handle(CHANNELS.TASKS_CREATE,       h.handleCreateTask);
+  ipcMain.handle(CHANNELS.TASKS_EDIT,         h.handleEditTask);
+  ipcMain.handle(CHANNELS.TASKS_COMPLETE,     h.handleCompleteTask);
+  ipcMain.handle(CHANNELS.TASKS_REOPEN,       h.handleReopenTask);
+  ipcMain.handle(CHANNELS.TASKS_DELETE,       h.handleDeleteTask);
+  ipcMain.handle(CHANNELS.TASKS_LIST,         h.handleListTasks);
+  ipcMain.handle(CHANNELS.SESSIONS_START,     h.handleStartSession);
+  ipcMain.handle(CHANNELS.SESSIONS_PAUSE,     h.handlePauseSession);
+  ipcMain.handle(CHANNELS.SESSIONS_RESUME,    h.handleResumeSession);
+  ipcMain.handle(CHANNELS.SESSIONS_ABANDON,   h.handleAbandonSession);
+  ipcMain.handle('sessions:get-active',       h.handleGetActiveSession);
+  ipcMain.handle('sessions:get-checkpoint',   h.handleGetLastCheckpoint);
+  ipcMain.handle(CHANNELS.SESSIONS_LIST,      h.handleListSessions);
 }

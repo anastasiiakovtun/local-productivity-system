@@ -8,8 +8,9 @@ describe('createAppApi', () => {
     expect(Object.keys(api)).toEqual([
       'getPreferences', 'setPreferences',
       'createTask', 'editTask', 'completeTask', 'reopenTask', 'deleteTask', 'listTasks',
-      'startSession', 'pauseSession', 'resumeSession', 'abandonSession', 'endSession', 'listSessions',
-      'saveCheckpoint',
+      'startSession', 'pauseSession', 'resumeSession', 'abandonSession', 'endSession',
+      'getActiveSession', 'getLastCheckpoint',
+      'listSessions', 'saveCheckpoint',
     ]);
   });
 

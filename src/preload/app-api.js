@@ -25,6 +25,8 @@ export function createAppApi(invoke) {
     resumeSession:    (sessionId)                            => call(CHANNELS.SESSIONS_RESUME, sessionId),
     abandonSession:   (sessionId)                            => call(CHANNELS.SESSIONS_ABANDON, sessionId),
     endSession:       (sessionId)                            => call(CHANNELS.SESSIONS_END, sessionId),
+    getActiveSession: ()                                     => call('sessions:get-active'),
+    getLastCheckpoint:(taskId)                               => call('sessions:get-checkpoint', taskId),
     listSessions:     (filters)                              => call(CHANNELS.SESSIONS_LIST, filters),
     saveCheckpoint:   (sessionId, fields)                    => call(CHANNELS.CHECKPOINTS_SAVE, sessionId, fields),
   });
