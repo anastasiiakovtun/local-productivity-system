@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useTaskStore } from '../stores/tasks.js';
 
 const taskStore = useTaskStore();
+const emit = defineEmits(['focus']);
 const search = ref('');
 
 onMounted(() => taskStore.fetchToday());
@@ -21,6 +22,7 @@ const filtered = () => taskStore.today.filter(t =>
         <span v-if="task.project_label" class="task-project">[{{ task.project_label }}]</span>
         <button type="button" class="btn-icon" aria-label="Complete" @click="taskStore.completeTask(task.id)">✓</button>
         <button type="button" class="btn-icon btn-delete" aria-label="Delete" @click="taskStore.deleteTask(task.id)">✕</button>
+        <button type="button" class="btn-icon" aria-label="Focus" @click="emit('focus', task)">▶</button>
       </li>
     </ul>
     <p v-else class="empty-state">No tasks due today.</p>

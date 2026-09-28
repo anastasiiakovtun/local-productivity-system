@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useTaskStore } from '../stores/tasks.js';
 
 const taskStore = useTaskStore();
+const emit = defineEmits(['focus']);
 const newTitle = ref('');
 const newProject = ref('');
 const error = ref(null);
@@ -64,6 +65,7 @@ async function remove(id) {
         <span v-if="task.project_label" class="task-project">[{{ task.project_label }}]</span>
         <button type="button" class="btn-icon" aria-label="Complete" @click="complete(task.id)">✓</button>
         <button type="button" class="btn-icon btn-delete" aria-label="Delete" @click="remove(task.id)">✕</button>
+        <button type="button" class="btn-icon" aria-label="Focus" @click="emit('focus', task)">▶</button>
       </li>
     </ul>
     <p v-else class="empty-state">No tasks in Inbox.</p>

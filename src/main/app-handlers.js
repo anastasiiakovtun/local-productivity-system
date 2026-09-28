@@ -148,7 +148,13 @@ export function createAppHandlers({ getMainWindow, taskStore, sessionStore, chec
   async function handleAbandonSession(event, sessionId) {
     if (!guard(event)) return unexpectedError();
     if (typeof sessionId !== 'string' || !sessionId) return err('sessionId required');
-    try { return ok(sessionStore.abandonSession(sessionId)); } catch { return unexpectedError(); }
+    try {
+      const result = sessionStore.abandonSession(sessionId);
+      if (checkpointStore) {
+        try { await checkpointStore.writeAbandonLog(sessionId); } catch { /* non-fatal: log unavailable */ }
+      }
+      return ok(result);
+    } catch { return unexpectedError(); }
   }
 
   async function handleGetActiveSession(event) {

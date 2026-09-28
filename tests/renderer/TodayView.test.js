@@ -51,4 +51,21 @@ describe('TodayView', () => {
     await flushPromises();
     expect(w.find('.empty-state').exists()).toBe(true);
   });
+
+  it('each task row shows a Focus button', async () => {
+    window.app.listTasks.mockResolvedValue({ status: 'success', data: makeTasks('Write essay') });
+    const w = mount(TodayView);
+    await flushPromises();
+    expect(w.find('button[aria-label="Focus"]').exists()).toBe(true);
+  });
+
+  it('Focus button emits focus event with the task object', async () => {
+    const task = { id: '^task-0', title: 'Write essay', project_label: null, status: 'open' };
+    window.app.listTasks.mockResolvedValue({ status: 'success', data: [task] });
+    const w = mount(TodayView);
+    await flushPromises();
+    await w.find('button[aria-label="Focus"]').trigger('click');
+    expect(w.emitted('focus')).toHaveLength(1);
+    expect(w.emitted('focus')[0][0]).toMatchObject({ id: '^task-0', title: 'Write essay' });
+  });
 });

@@ -82,7 +82,26 @@ export class CheckpointStore {
     return { status: 'success', checkpoint_id };
   }
 
+  async writeAbandonLog(sessionId) {
+    const vaultRoot = this._getVaultRoot?.();
+    if (typeof vaultRoot !== 'string' || vaultRoot.length === 0) {
+      throw new Error('vault-not-selected');
+    }
+    const session = this._getSession.get(sessionId);
+    if (!session) return;
+    const { loggedTimestamp } = await import('./logged-timestamp.js');
+    const ts = loggedTimestamp();
+    const actualSeconds = session.ended_occurred_at_utc
+      ? Math.round((new Date(session.ended_occurred_at_utc).getTime() - new Date(session.started_occurred_at_utc).getTime()) / 1000) - (session.paused_seconds ?? 0)
+      : 0;
+    await this._appendFocusLogBlock(vaultRoot, session, { outcome: null, status: 'abandoned', nextAction: null, ts, actualSeconds, overflowSeconds: 0 });
+  }
+
   async _appendToFocusLog(vaultRoot, session, { outcome, status, nextAction, ts, actualSeconds, overflowSeconds }) {
+    await this._appendFocusLogBlock(vaultRoot, session, { outcome, status, nextAction, ts, actualSeconds, overflowSeconds });
+  }
+
+  async _appendFocusLogBlock(vaultRoot, session, { outcome, status, nextAction, ts, actualSeconds, overflowSeconds }) {
     if (!session) return;
     const logDir = path.join(vaultRoot, 'Productivity', 'Focus Logs');
     const logPath = path.join(logDir, `${session.task_id.replace('^', '')}.md`);
@@ -95,7 +114,7 @@ export class CheckpointStore {
     let block = `## ${ts.local_date} ${ts.local_time.slice(0, 5)} ${ts.utc_offset} — ${status}\n\n`;
     block += `**Task:** ${session.task_title}  \n`;
     block += `**Planned:** ${plannedMin} min | **Actual:** ${actualMin} min | **Overflow:** ${overflowMin} min  \n`;
-    block += `**Outcome:** ${outcome}  \n`;
+    if (outcome != null) block += `**Outcome:** ${outcome}  \n`;
     if (nextAction) block += `**Next Action:** ${nextAction}  \n`;
     block += '\n---\n\n';
 
