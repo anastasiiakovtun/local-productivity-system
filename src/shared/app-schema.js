@@ -8,6 +8,7 @@ export const CHANNELS = {
   TASKS_REOPEN:     'tasks:reopen',
   TASKS_DELETE:     'tasks:delete',
   TASKS_LIST:       'tasks:list',
+  TASKS_LIST_EVENTS: 'tasks:list-events',
   SESSIONS_START:   'sessions:start',
   SESSIONS_PAUSE:   'sessions:pause',
   SESSIONS_RESUME:  'sessions:resume',
@@ -20,7 +21,7 @@ export const CHANNELS = {
   PROJECTS_SET_COVER: 'projects:set-cover',
 };
 
-const ALLOWED_VIEWS = new Set(['inbox', 'today', 'completed']);
+const ALLOWED_VIEWS = new Set(['inbox', 'today', 'upcoming', 'completed', 'trash']);
 const ALLOWED_CHECKPOINT_STATUSES = new Set(['continue', 'blocked', 'completed', 'abandoned']);
 export const PROJECT_COVER_COLORS = Object.freeze([
   '#2dd4bf',

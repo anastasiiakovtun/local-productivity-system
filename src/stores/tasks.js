@@ -7,17 +7,17 @@ export const useTaskStore = defineStore('tasks', () => {
   const completed = ref([]);
 
   async function fetchInbox() {
-    const r = await window.app.listTasks('inbox');
+    const r = await window.app.listTasks({ view: 'inbox' });
     if (r.status === 'success') inbox.value = r.data;
   }
 
   async function fetchToday() {
-    const r = await window.app.listTasks('today');
+    const r = await window.app.listTasks({ view: 'today' });
     if (r.status === 'success') today.value = r.data;
   }
 
   async function fetchCompleted() {
-    const r = await window.app.listTasks('completed');
+    const r = await window.app.listTasks({ view: 'completed' });
     if (r.status === 'success') completed.value = r.data;
   }
 

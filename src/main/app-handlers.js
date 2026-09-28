@@ -108,6 +108,14 @@ export function createAppHandlers({ getMainWindow, taskStore, sessionStore, chec
     try { return await taskStore.deleteTask({ id }); } catch { return unexpectedError(); }
   }
 
+  async function handleListTaskEvents(event) {
+    if (!guard(event)) return unexpectedError();
+    try {
+      const rows = db.prepare('SELECT * FROM task_events ORDER BY occurred_at_utc DESC LIMIT 500').all();
+      return ok(rows);
+    } catch { return unexpectedError(); }
+  }
+
   async function handleListTasks(event, view) {
     if (!guard(event)) return unexpectedError();
     const validErr = validateListTasks(view);
@@ -238,6 +246,7 @@ export function createAppHandlers({ getMainWindow, taskStore, sessionStore, chec
     handleCompleteTask,
     handleReopenTask,
     handleDeleteTask,
+    handleListTaskEvents,
     handleListTasks,
     handleStartSession,
     handlePauseSession,
@@ -263,6 +272,7 @@ export function registerAppHandlers({ ipcMain, ...deps }) {
   ipcMain.handle(CHANNELS.TASKS_COMPLETE,     h.handleCompleteTask);
   ipcMain.handle(CHANNELS.TASKS_REOPEN,       h.handleReopenTask);
   ipcMain.handle(CHANNELS.TASKS_DELETE,       h.handleDeleteTask);
+  ipcMain.handle(CHANNELS.TASKS_LIST_EVENTS, h.handleListTaskEvents);
   ipcMain.handle(CHANNELS.TASKS_LIST,         h.handleListTasks);
   ipcMain.handle(CHANNELS.SESSIONS_START,     h.handleStartSession);
   ipcMain.handle(CHANNELS.SESSIONS_PAUSE,     h.handlePauseSession);

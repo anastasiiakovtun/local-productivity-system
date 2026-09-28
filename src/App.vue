@@ -6,6 +6,9 @@ import { useHomeStore } from './stores/home.js';
 import HomeView from './views/HomeView.vue';
 import InboxView from './views/InboxView.vue';
 import TodayView from './views/TodayView.vue';
+import UpcomingView from './views/UpcomingView.vue';
+import TrashView from './views/TrashView.vue';
+import ActivityView from './views/ActivityView.vue';
 import CompletedView from './views/CompletedView.vue';
 import SessionHistoryView from './views/SessionHistoryView.vue';
 import ResumePacketView from './views/ResumePacketView.vue';
@@ -187,6 +190,9 @@ async function onMinimizeTimer() {
         <InboxView     v-else-if="activeView === 'inbox'"     @focus="onFocus" />
         <TodayView     v-else-if="activeView === 'today'"     @focus="onFocus" />
         <CompletedView v-else-if="activeView === 'completed'" />
+        <UpcomingView  v-else-if="activeView === 'upcoming'" />
+        <TrashView     v-else-if="activeView === 'trash'" />
+        <ActivityView  v-else-if="activeView === 'activity'" />
         <SessionHistoryView v-else-if="activeView === 'sessions'" />
       </main>
     </template>

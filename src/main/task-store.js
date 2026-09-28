@@ -298,6 +298,15 @@ export class TaskStore {
         ORDER BY due_date ASC NULLS LAST, rowid
       `).all(today);
     }
+    if (view === 'upcoming') {
+      return this._db.prepare(`
+        SELECT * FROM tasks WHERE status = 'open' AND start_date > ?
+        ORDER BY start_date ASC, due_date ASC NULLS LAST, rowid
+      `).all(today);
+    }
+    if (view === 'trash') {
+      return this._db.prepare(`SELECT * FROM tasks WHERE status = 'deleted' ORDER BY updated_occurred_at_utc DESC`).all();
+    }
     if (view === 'completed') {
       return this._db.prepare(`SELECT * FROM tasks WHERE status = 'completed' ORDER BY updated_occurred_at_utc DESC`).all();
     }
