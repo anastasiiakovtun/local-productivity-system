@@ -27,6 +27,7 @@ Windows has not been manually verified.
 - [Grill evidence record](docs/research/grill-session.md)
 - [Competitive app research](docs/research/app-landscape-report.md)
 - [Design handoff](DESIGN-HANDOFF.md)
+- [Visual artifact decisions](docs/design/visual-artifact-decisions.md)
 - [Architecture decision](docs/adr/0001-use-electron-vue.md)
 
 ## Setup
