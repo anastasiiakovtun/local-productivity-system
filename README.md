@@ -21,12 +21,20 @@ Obsidian Focus Companion is a local-first Electron desktop app that combines tas
 
 Windows has not been manually verified.
 
+## Product and submission evidence
+
+- [Product requirements](PRD.md)
+- [Grill evidence record](docs/research/grill-session.md)
+- [Competitive app research](docs/research/app-landscape-report.md)
+- [Design handoff](DESIGN-HANDOFF.md)
+- [Architecture decision](docs/adr/0001-use-electron-vue.md)
+
 ## Setup
 
 Clone the repository, enter it, and install dependencies:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/anastasiiakovtun/local-productivity-system.git
 cd local-productivity-system
 npm install
 ```
