@@ -158,7 +158,7 @@ button:focus-visible {
     inset 0 1px 0 rgba(255, 255, 255, 0.26),
     0 0 0 1px rgba(45, 212, 191, 0.12),
     0 8px 24px rgba(45, 212, 191, 0.14);
-  font-weight: 400;
+  font-weight: 500;
   transition:
     transform var(--dur-fast) var(--ease-out),
     filter var(--dur-fast) var(--ease-out),
@@ -217,6 +217,7 @@ button:focus-visible {
   color: var(--color-text);
   background: rgba(255, 255, 255, 0.035);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  font-weight: 500;
   transition: background var(--dur-fast), border-color var(--dur-fast);
 }
 
@@ -251,7 +252,7 @@ button:focus-visible {
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-accent);
-  font-weight: 400;
+  font-weight: 500;
   transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast);
 }
 
