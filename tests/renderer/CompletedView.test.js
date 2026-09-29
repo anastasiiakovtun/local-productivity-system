@@ -20,6 +20,15 @@ beforeEach(() => {
 });
 
 describe('CompletedView', () => {
+  it('Reopen uses an icon, not a text glyph', async () => {
+    window.app.listTasks.mockResolvedValue({ status: 'success', data: makeTasks('Read book') });
+    const w = mount(CompletedView);
+    await flushPromises();
+    const button = w.find('button[aria-label="Reopen"]');
+    expect(button.text()).toBe('');
+    expect(button.find('svg').exists()).toBe(true);
+  });
+
   it('shows completed tasks', async () => {
     window.app.listTasks.mockResolvedValue({ status: 'success', data: makeTasks('Read book', 'Write notes') });
     const w = mount(CompletedView);

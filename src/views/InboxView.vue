@@ -104,11 +104,11 @@ async function saveEdit() {
           <input type="text" aria-label="Edit project" v-model="editProject" class="capture-project" placeholder="Project (optional)" />
           <p v-if="editError" role="alert" class="error">{{ editError }}</p>
           <button type="button" class="btn-primary edit-action" aria-label="Save edit" :disabled="!editTitle.trim() || editSaving" @click="saveEdit">
-            <PhFloppyDisk :size="15" aria-hidden="true" />
+            <PhFloppyDisk :size="16" aria-hidden="true" />
             <span>Save</span>
           </button>
           <button type="button" class="btn-secondary edit-action" aria-label="Cancel edit" @click="cancelEdit">
-            <PhX :size="15" aria-hidden="true" />
+            <PhX :size="16" aria-hidden="true" />
             <span>Cancel</span>
           </button>
         </template>

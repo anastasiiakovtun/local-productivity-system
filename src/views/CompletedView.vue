@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { PhCheckCircle } from '@phosphor-icons/vue';
+import { PhCheckCircle, PhArrowCounterClockwise } from '@phosphor-icons/vue';
 import IconContainer from '../components/IconContainer.vue';
 import { useTaskStore } from '../stores/tasks.js';
 
@@ -24,7 +24,7 @@ const filtered = computed(() =>
       <li v-for="task in filtered" :key="task.id" class="task-row">
         <span class="task-title">{{ task.title }}</span>
         <span v-if="task.project_label" class="task-project">[{{ task.project_label }}]</span>
-        <button type="button" class="btn-icon" aria-label="Reopen" @click="taskStore.reopenTask(task.id)">↩</button>
+        <button type="button" class="btn-icon" aria-label="Reopen" @click="taskStore.reopenTask(task.id)"><PhArrowCounterClockwise :size="16" aria-hidden="true" /></button>
       </li>
     </ul>
     <div v-else class="empty-state">
