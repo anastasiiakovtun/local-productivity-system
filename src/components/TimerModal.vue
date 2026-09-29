@@ -35,8 +35,19 @@ async function resume() { await session.resumeSession(); }
 <template>
   <div class="timer-modal-backdrop" role="dialog" aria-modal="true" aria-label="Focus session timer">
     <div class="timer-modal">
-      <!-- Header row: close (→ quick-abandon) + optional minimize -->
+      <!-- Top row: project cover + task identity (left), close + optional minimize (right) -->
       <div class="timer-modal-header">
+        <div class="timer-modal-identity">
+          <ProjectCover
+            :project-label="session.activeSession?.project_label"
+            :color="null"
+            :size="56"
+          />
+          <div class="timer-modal-task">
+            <p class="timer-modal-project">{{ session.activeSession?.project_label ?? 'No project' }}</p>
+            <p class="timer-modal-title">{{ session.activeSession?.task_title }}</p>
+          </div>
+        </div>
         <div class="timer-modal-header-actions">
           <button
             v-if="showFloatingToggle"
@@ -60,20 +71,7 @@ async function resume() { await session.resumeSession(); }
         </div>
       </div>
 
-      <!-- Project cover + task identity — pinned left -->
-      <div class="timer-modal-identity">
-        <ProjectCover
-          :project-label="session.activeSession?.project_label"
-          :color="null"
-          :size="56"
-        />
-        <div class="timer-modal-task">
-          <p class="timer-modal-project">{{ session.activeSession?.project_label ?? 'No project' }}</p>
-          <p class="timer-modal-title">{{ session.activeSession?.task_title }}</p>
-        </div>
-      </div>
-
-      <!-- Timer display — centered -->
+      <!-- Timer display — centered in the remaining space -->
       <div class="timer-display timer-display--centered" :class="{ overflow: isOverflow }">
         {{ displayTime }}
       </div>
@@ -88,8 +86,8 @@ async function resume() { await session.resumeSession(); }
         <span class="timer-time-value">{{ session.activeSession?.planned_minutes }} min</span>
       </div>
 
-      <!-- Controls — centered -->
-      <div class="timer-modal-controls timer-modal-controls--centered">
+      <!-- Controls — right-aligned -->
+      <div class="timer-modal-controls timer-modal-controls--end">
         <button
           v-if="!isPaused"
           type="button"

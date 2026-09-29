@@ -66,6 +66,13 @@ describe('TimerModal', () => {
     expect(w.find('.project-cover-stub').exists()).toBe(true);
   });
 
+  it('places project identity and close button in the same top row', () => {
+    const w = mountModal();
+    const header = w.find('.timer-modal-header');
+    expect(header.find('.timer-modal-identity').exists()).toBe(true);
+    expect(header.find('[data-action="close"]').exists()).toBe(true);
+  });
+
   it('shows MM:SS countdown', () => {
     const w = mountModal();
     expect(w.find('.timer-display').text()).toMatch(/\d{2}:\d{2}/);
@@ -108,9 +115,9 @@ describe('TimerModal', () => {
     expect(display.text()).toMatch(/\d{2}:\d{2}/);
   });
 
-  it('controls row has justify-content center class', () => {
+  it('controls row is right-aligned', () => {
     const w = mountModal();
-    expect(w.find('.timer-modal-controls').classes()).toContain('timer-modal-controls--centered');
+    expect(w.find('.timer-modal-controls').classes()).toContain('timer-modal-controls--end');
   });
 
   it('Finish button emits finish', async () => {
