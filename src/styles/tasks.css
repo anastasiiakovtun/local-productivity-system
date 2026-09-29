@@ -278,7 +278,8 @@ button:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-weight: 400;
+  font-weight: 500;
+  color: #ffffff;
 }
 
 /* ─── Empty + error states ────────────────────────────── */

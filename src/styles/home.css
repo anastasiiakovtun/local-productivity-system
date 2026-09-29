@@ -69,6 +69,16 @@
   flex: 1;
 }
 
+/* Header row: eyebrow left, Resume button right */
+.home-resume-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.home-resume-header .eyebrow { margin-bottom: 0; }
+
 .home-resume-card > .home-resume-action,
 .home-resume-footer > .home-resume-action {
   display: inline-flex;

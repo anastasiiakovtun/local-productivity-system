@@ -48,7 +48,18 @@ async function chooseColor(projectLabel, color) {
 
     <div class="home-grid">
       <section v-if="homeStore.resumeTask" class="home-resume-card">
-        <p class="eyebrow">Continue where you left off</p>
+        <div class="home-resume-header">
+          <p class="eyebrow">Continue where you left off</p>
+          <button
+            type="button"
+            class="btn-primary home-resume-action"
+            :aria-label="`Resume ${homeStore.resumeTask.title}`"
+            @click="emit('resume', homeStore.resumeTask)"
+          >
+            <PhPlay :size="17" weight="fill" aria-hidden="true" />
+            <span>Resume</span>
+          </button>
+        </div>
         <div class="home-task-heading">
           <ProjectCover
             :project-label="homeStore.resumeTask.project_label"
@@ -60,26 +71,15 @@ async function chooseColor(projectLabel, color) {
             <h3>{{ homeStore.resumeTask.title }}</h3>
           </div>
         </div>
-        <div class="home-resume-footer">
-          <div class="home-checkpoint">
-            <div>
-              <span>Previous outcome</span>
-              <p>{{ homeStore.resumeTask.outcome }}</p>
-            </div>
-            <div v-if="homeStore.resumeTask.next_action">
-              <span>Next action</span>
-              <p>{{ homeStore.resumeTask.next_action }}</p>
-            </div>
+        <div class="home-checkpoint">
+          <div>
+            <span>Previous outcome</span>
+            <p>{{ homeStore.resumeTask.outcome }}</p>
           </div>
-          <button
-            type="button"
-            class="btn-primary home-resume-action"
-            :aria-label="`Resume ${homeStore.resumeTask.title}`"
-            @click="emit('resume', homeStore.resumeTask)"
-          >
-            <PhPlay :size="17" weight="fill" aria-hidden="true" />
-            <span>Resume</span>
-          </button>
+          <div v-if="homeStore.resumeTask.next_action">
+            <span>Next action</span>
+            <p>{{ homeStore.resumeTask.next_action }}</p>
+          </div>
         </div>
       </section>
 
