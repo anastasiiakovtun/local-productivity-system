@@ -60,25 +60,27 @@ async function chooseColor(projectLabel, color) {
             <h3>{{ homeStore.resumeTask.title }}</h3>
           </div>
         </div>
-        <div class="home-checkpoint">
-          <div>
-            <span>Previous outcome</span>
-            <p>{{ homeStore.resumeTask.outcome }}</p>
+        <div class="home-resume-footer">
+          <div class="home-checkpoint">
+            <div>
+              <span>Previous outcome</span>
+              <p>{{ homeStore.resumeTask.outcome }}</p>
+            </div>
+            <div v-if="homeStore.resumeTask.next_action">
+              <span>Next action</span>
+              <p>{{ homeStore.resumeTask.next_action }}</p>
+            </div>
           </div>
-          <div v-if="homeStore.resumeTask.next_action">
-            <span>Next action</span>
-            <p>{{ homeStore.resumeTask.next_action }}</p>
-          </div>
+          <button
+            type="button"
+            class="btn-primary home-resume-action"
+            :aria-label="`Resume ${homeStore.resumeTask.title}`"
+            @click="emit('resume', homeStore.resumeTask)"
+          >
+            <PhPlay :size="17" weight="fill" aria-hidden="true" />
+            <span>Resume</span>
+          </button>
         </div>
-        <button
-          type="button"
-          class="btn-primary home-resume-action"
-          :aria-label="`Resume ${homeStore.resumeTask.title}`"
-          @click="emit('resume', homeStore.resumeTask)"
-        >
-          <PhPlay :size="17" weight="fill" aria-hidden="true" />
-          <span>Resume</span>
-        </button>
       </section>
 
       <section v-else class="home-empty-card">

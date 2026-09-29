@@ -89,7 +89,7 @@ async function saveEdit() {
         placeholder="Project (optional)"
         aria-label="Project label"
       />
-      <button type="submit" class="btn-ghost capture-add" :disabled="!newTitle.trim()">
+      <button type="submit" class="btn-primary capture-add" :disabled="!newTitle.trim()">
         <PhPlus :size="16" weight="regular" aria-hidden="true" />
         <span>Add</span>
       </button>

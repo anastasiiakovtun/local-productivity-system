@@ -57,7 +57,20 @@
 
 .home-empty-card > .btn-primary { align-self: center; margin-top: var(--space-5); }
 
-.home-resume-card > .home-resume-action {
+/* Footer row: checkpoint info left, Resume button right */
+.home-resume-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.home-resume-footer .home-checkpoint {
+  flex: 1;
+}
+
+.home-resume-card > .home-resume-action,
+.home-resume-footer > .home-resume-action {
   display: inline-flex;
   align-items: center;
   gap: 6px;

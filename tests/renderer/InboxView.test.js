@@ -38,7 +38,7 @@ describe('InboxView', () => {
     const add = w.find('.capture-add');
     expect(add.find('svg').exists()).toBe(true);
     expect(add.text()).toBe('Add');
-    expect(add.classes()).toContain('btn-ghost');
+    expect(add.classes()).toContain('btn-primary');
   });
 
   it('submitting the capture bar calls createTask and refreshes list', async () => {
