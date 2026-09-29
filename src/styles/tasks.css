@@ -239,9 +239,39 @@ button:focus-visible {
 
 .btn-danger:hover { background: rgba(239, 68, 68, 0.14); border-color: rgba(239, 68, 68, 0.34); }
 
+/* Ghost button — teal text + border, transparent bg */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 16px;
+  border: 0.5px solid rgba(45, 212, 191, 0.35);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-accent);
+  font-weight: 400;
+  transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast);
+}
+
+.btn-ghost:hover {
+  background: rgba(45, 212, 191, 0.08);
+  border-color: rgba(45, 212, 191, 0.55);
+}
+
+.btn-ghost:active { transform: translateY(1px) scale(0.99); }
+.btn-ghost:disabled { opacity: 0.40; cursor: default; }
+.btn-ghost:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.18);
+  border-color: rgba(45, 212, 191, 0.55);
+}
+
 /* Capture bar submit */
-.capture-bar .btn-primary {
-  padding: 10px 18px;
+.capture-bar .btn-ghost {
+  padding: 0 18px;
+  min-height: 42px;
 }
 
 .capture-add {
@@ -249,7 +279,6 @@ button:focus-visible {
   align-items: center;
   gap: 7px;
   font-weight: 400;
-  color: #ffffff;
 }
 
 /* ─── Empty + error states ────────────────────────────── */
