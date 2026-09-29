@@ -24,7 +24,7 @@ This record explains what each artifact in `reference/` helped decide. The sketc
 
 **Decision:** Keep the active timer visually focused, allow work to continue after the minimum commitment as Overflow, and provide a compact always-on-top timer. This informed `DESIGN-HANDOFF.md` §9.
 
-**Later refinement:** “Overflow” became “Overtime” in parts of the handoff. Electron `BrowserWindow` implementation, its preference toggle, and default-off behavior are engineering decisions, not details shown by the sketch.
+**Later refinement:** “Overflow” became “Overtime” in parts of the handoff. After review, the timer puts the project cover, task title, and close button on one top row, centers the countdown in the remaining space, and aligns the controls right, instead of stacking a centered cover above the title. Electron `BrowserWindow` implementation, its preference toggle, and default-off behavior are engineering decisions, not details shown by the sketch.
 
 ## `sketch-4-resume-packet.jpg`
 
@@ -32,7 +32,7 @@ This record explains what each artifact in `reference/` helped decide. The sketc
 
 **Decision:** Present resumption context before starting the timer. Keep four distinct context areas: Previous Checkpoint, Next Action, Supporting Notes, and Blocker. This informed `DESIGN-HANDOFF.md` §10.
 
-**Later refinement:** The handoff defines a quiet empty-blocker state instead of leaving a large blank blocker area.
+**Later refinement:** The handoff defines a quiet empty-blocker state instead of leaving a large blank blocker area. After review, the duration control moved from the header to the footer, next to Start session, and both sit on the right. Edit became a visible button on the same line as the content.
 
 ## `sketch-5-checkpoint-popup.jpg`
 

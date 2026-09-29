@@ -75,6 +75,7 @@ Use Inter Variable. It is appropriate here because the user already accepts it, 
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-pill: 999px;
 
   /* Space: 4px base */
@@ -164,7 +165,8 @@ All UI is rounded, but the radius communicates scale:
 - 6px: project cover swatches, status chips, keyboard keycaps.
 - 8px: inputs, icon buttons, small buttons, nav rows, image thumbnails.
 - 12px: standard cards, task rows, quick-capture tile, timer controls.
-- 16px: resume packet, checkpoint dialogs, large timer panel.
+- 16px: resume packet, checkpoint dialogs, home cards.
+- 20px: full timer panel and quick-abandon panel (modal dialogs over the faded backdrop).
 - Pill radius: segmented status choices and compact floating timer only.
 
 Do not mix square controls with rounded cards. Do not make every object pill-shaped.
@@ -545,6 +547,12 @@ Copy:
 - Primary action: `Go to Today`
 - Secondary text action: `Quick capture`
 
+Empty-state layout, top to bottom:
+
+1. Icon container.
+2. Title and body. Stack gap between icon and text: 16px. Gap between title and body: 8px.
+3. `Go to Today` button, centered, at the bottom of the card, 20px below the body.
+
 Empty-state container:
 
 - Width: min(420px, 100%).
@@ -560,11 +568,10 @@ Empty-state container:
 - Presented above a faded app background.
 - Dialog width: 560px, max width `calc(100vw - 32px)`.
 - Padding: 32px.
-- Close button at top-right, 36 x 36px.
-- Project cover or task image: 72 x 72px, radius 12px, centered.
-- Task title below image, 20px, centered, one line with ellipsis.
-- Timer below title, 56px, tabular numerals.
-- Controls centered with 12px gap.
+- Top row: project cover (56 x 56px) with project name and task title on the left; close button (and optional minimize) on the right. The cover, text block, and close button share one row at the top of the card.
+- Timer below the top row, 56px, tabular numerals, centered horizontally and vertically in the remaining space.
+- Planned-duration row below the timer.
+- Controls aligned right with 12px gap.
 - Primary control: Pause or Resume.
 - Secondary control: Stop.
 
@@ -618,7 +625,7 @@ Header:
 1. 48px project cover.
 2. Task title.
 3. Project name in muted text.
-4. Session duration select aligned right, default example `25 min`.
+The 40px project cover is vertically centered against the project name and title block. The session duration control is not in the header; it sits in the footer.
 
 Content sections:
 
@@ -628,20 +635,25 @@ Content sections:
 2. `Next action`
    - Most visually prominent text block after the title.
    - Use `ArrowBendDownRight` icon.
-   - Inline `Edit` action with `PencilSimple` icon.
+   - `Edit` button on the same line as the text, aligned right: 28px high, 14px label, 16px pencil icon, teal text on a 8% teal background with a teal border.
 3. `Supporting notes`
    - Bulleted or short paragraph content.
    - Use `NotePencil` icon.
-   - Inline `Edit` action.
+   - Same `Edit` button as Next action, on the same line as the content.
 4. `Blocker`
    - Use `WarningCircle` icon.
    - If empty, show `No blocker recorded` in faint text, not a large empty box.
    - If populated, use amber text and a 10% amber background.
 
+All four section icons use the same 24px rounded-rectangle icon container (radius 6px).
+
+Edit mode replaces the text with a textarea and `Cancel` / `Save` buttons. It keeps the app's normal scale: 14px text, 36px buttons, 16px icons.
+
 Footer:
 
+- Session duration input (`25` + `min`, 36px high) directly left of the Start button.
 - Primary action: `Start session` with `Play` icon.
-- Align right.
+- Duration and Start button aligned right as one group.
 - Shortcut hint to the left: `Enter` shown as a keycap.
 
 The Next action block should receive keyboard focus first when the packet opens only if it is editable. Otherwise focus the Start session button.
@@ -722,6 +734,7 @@ This is a reduced checkpoint flow reached from the timer close action.
 - Keep the field optional if fast exit is a hard requirement, but preserve entered text if the user goes back.
 - Primary action: `End session`, restrained danger style.
 - Secondary action: `Keep working`.
+- Action buttons centered in the panel. Icons and labels are vertically centered inside each button.
 
 Do not use `Confirm` as the button label. Name the irreversible outcome.
 
