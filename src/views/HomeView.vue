@@ -48,18 +48,7 @@ async function chooseColor(projectLabel, color) {
 
     <div class="home-grid">
       <section v-if="homeStore.resumeTask" class="home-resume-card">
-        <div class="home-resume-header">
-          <p class="eyebrow">Continue where you left off</p>
-          <button
-            type="button"
-            class="btn-primary home-resume-action"
-            :aria-label="`Resume ${homeStore.resumeTask.title}`"
-            @click="emit('resume', homeStore.resumeTask)"
-          >
-            <PhPlay :size="17" weight="fill" aria-hidden="true" />
-            <span>Resume</span>
-          </button>
-        </div>
+        <p class="eyebrow">Continue where you left off</p>
         <div class="home-task-heading">
           <ProjectCover
             :project-label="homeStore.resumeTask.project_label"
@@ -81,6 +70,15 @@ async function chooseColor(projectLabel, color) {
             <p>{{ homeStore.resumeTask.next_action }}</p>
           </div>
         </div>
+        <button
+          type="button"
+          class="btn-primary home-resume-action"
+          :aria-label="`Resume ${homeStore.resumeTask.title}`"
+          @click="emit('resume', homeStore.resumeTask)"
+        >
+          <PhPlay :size="17" weight="fill" aria-hidden="true" />
+          <span>Resume</span>
+        </button>
       </section>
 
       <section v-else class="home-empty-card">

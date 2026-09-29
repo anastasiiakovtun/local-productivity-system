@@ -279,7 +279,7 @@ button:focus-visible {
   align-items: center;
   gap: 7px;
   font-weight: 500;
-  color: #ffffff;
+  color: var(--color-accent-ink);
 }
 
 /* ─── Empty + error states ────────────────────────────── */
