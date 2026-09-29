@@ -342,7 +342,7 @@
 }
 .floating-timer-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .floating-timer-title { font-size: 11px; color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.floating-time { font-size: 15px; font-weight: 600; color: var(--color-teal); letter-spacing: 0.05em; }
+.floating-time { font-size: 15px; font-weight: 600; color: var(--color-accent); letter-spacing: 0.05em; }
 .floating-timer-controls { display: flex; gap: 4px; }
 .floating-icon-btn {
   background: none; border: none; color: var(--color-text-muted);
@@ -350,4 +350,8 @@
   transition: color 0.15s;
 }
 .floating-icon-btn:hover { color: var(--color-text); }
+.floating-icon-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
 
