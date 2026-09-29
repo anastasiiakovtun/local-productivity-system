@@ -57,11 +57,12 @@
 
 .home-empty-card > .btn-primary { align-self: center; margin-top: var(--space-5); }
 
-.home-resume-action {
+.home-resume-card > .home-resume-action {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   align-self: flex-start;
+  margin-top: var(--space-1);
 }
 
 .home-projects { margin-top: var(--space-4); }
