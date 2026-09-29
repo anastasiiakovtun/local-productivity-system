@@ -65,7 +65,6 @@
     linear-gradient(135deg, rgba(245, 245, 247, 0.10), rgba(245, 245, 247, 0.03)) border-box;
   color: var(--color-text-muted);
   font: inherit;
-  font-size: var(--text-sm);
   caret-color: var(--color-accent);
 }
 
@@ -123,12 +122,16 @@ button:focus-visible {
 }
 
 .btn-icon {
-  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: 0.5px solid var(--line-default);
   background: transparent;
   color: var(--color-text-muted);
-  font-size: var(--text-sm);
-  line-height: 1.4;
   transition: background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast);
 }
 
@@ -141,6 +144,10 @@ button:focus-visible {
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   min-height: 36px;
   padding: 0 16px;
   border: 0.5px solid rgba(255, 255, 255, 0.10);
@@ -199,6 +206,10 @@ button:focus-visible {
 
 /* Secondary button */
 .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   min-height: 36px;
   padding: 0 14px;
   border: 0.5px solid var(--line-default);
@@ -213,6 +224,10 @@ button:focus-visible {
 
 /* Danger button */
 .btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   min-height: 36px;
   padding: 0 14px;
   border: 0.5px solid rgba(239, 68, 68, 0.24);
@@ -293,6 +308,9 @@ button:focus-visible {
 }
 
 /* ─── Session history ─────────────────────────────────── */
+.session-filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
+.session-filter { display: flex; flex-direction: column; gap: 6px; font-size: var(--text-sm); color: var(--color-text-muted); }
+.session-filter .session-filter-input { width: 140px; min-height: 36px; padding: 0 10px; font-size: var(--text-md); text-align: left; }
 .session-list { display: flex; flex-direction: column; gap: var(--space-2); }
 
 .session-row {

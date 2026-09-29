@@ -28,6 +28,14 @@ beforeEach(() => {
 });
 
 describe('SessionHistoryView', () => {
+  it('filter bar uses shared classes instead of inline styles', async () => {
+    const w = mount(SessionHistoryView);
+    await flushPromises();
+    expect(w.find('.session-filters').exists()).toBe(true);
+    expect(w.find('.session-filters [style]').exists()).toBe(false);
+    expect(w.find('.session-filters').attributes('style')).toBeUndefined();
+  });
+
   it('shows session rows with task title and date', async () => {
     window.app.listSessions.mockResolvedValue({ status: 'success', data: makeSessions({ task_title: 'Write thesis' }) });
     const w = mount(SessionHistoryView);

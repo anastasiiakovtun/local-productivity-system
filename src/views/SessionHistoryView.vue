@@ -39,25 +39,25 @@ const statusOptions = ['', 'continue', 'blocked', 'completed', 'abandoned'];
   <div class="view">
     <h2>Sessions</h2>
 
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end">
-      <label style="font-size:12px;color:#6b7280">
+    <div class="session-filters">
+      <label class="session-filter">
         From
-        <input v-model="fromDate" type="date" class="duration-input" style="width:140px" />
+        <input v-model="fromDate" type="date" class="duration-input session-filter-input" />
       </label>
-      <label style="font-size:12px;color:#6b7280">
+      <label class="session-filter">
         To
-        <input v-model="toDate" type="date" class="duration-input" style="width:140px" />
+        <input v-model="toDate" type="date" class="duration-input session-filter-input" />
       </label>
-      <label style="font-size:12px;color:#6b7280">
+      <label class="session-filter">
         Status
-        <select v-model="statusFilter" class="duration-input" style="width:130px">
+        <select v-model="statusFilter" class="duration-input session-filter-input">
           <option v-for="s in statusOptions" :key="s" :value="s">{{ s || 'All' }}</option>
         </select>
       </label>
-      <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:13px" @click="load">Filter</button>
+      <button type="button" class="btn-secondary" @click="load">Filter</button>
     </div>
 
-    <p v-if="loading" style="color:#6b7280">Loading…</p>
+    <p v-if="loading" class="rp-muted">Loading…</p>
 
     <div v-else-if="sessions.length" class="session-list">
       <div
