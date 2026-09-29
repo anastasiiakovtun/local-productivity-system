@@ -62,6 +62,7 @@
   align-items: center;
   gap: 6px;
   align-self: flex-start;
+  width: fit-content;
   margin-top: var(--space-1);
 }
 

@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { PhArrowLeft, PhStopCircle } from '@phosphor-icons/vue';
+import { PhStopCircle } from '@phosphor-icons/vue';
 
 const emit = defineEmits(['back', 'confirm']);
 
@@ -33,12 +33,10 @@ function onKeydown(e) {
     <div class="quick-abandon-actions">
       <button
         type="button"
-        class="btn-secondary"
+        class="quick-abandon-back"
         data-action="back"
         @click="onBack"
-      >
-        <PhArrowLeft :size="16" /> Back
-      </button>
+      >Back</button>
       <button
         type="button"
         class="btn-danger"
