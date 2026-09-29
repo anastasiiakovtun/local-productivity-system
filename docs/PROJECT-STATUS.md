@@ -1,8 +1,8 @@
 # Project Status
 
-**Last updated:** 2026-09-28
+**Last updated:** 2026-09-29
 **Repository:** `local-productivity-system`
-**Submission work branch:** `docs/submission-package`
+**Branch:** `main`
 **Verified platform:** macOS 15.6 on Apple silicon
 
 ## Product status
@@ -39,12 +39,10 @@ Obsidian Focus Companion is a working local-first Electron/Vue desktop app that 
 
 ## Verification state
 
-- Full suite at the start of submission work: **345 passing tests across 41 files**.
-- New targeted checks verify:
-  - no stylesheet requires a remote HTTP asset;
-  - a task remains present after closing and reopening an on-disk SQLite database.
-- `npm run package` and the packaged Electron smoke test passed before the final documentation pass.
-- Final full-suite, package, packaged lifecycle, and visual checks remain required after all submission changes are complete.
+- Full suite at submission: **396 passing tests across 44 files**.
+- Checks include: stylesheet integrity hash, no remote HTTP assets, task persistence across DB close/reopen, icon consistency, button classes, session filter layout, and all renderer component behaviour.
+- `npm run package` and the packaged Electron smoke test passed.
+- Visual checks completed manually in the running app after each UI fix.
 
 ## Submission evidence completed
 

@@ -278,7 +278,7 @@ Use one divider between meaningful groups. Do not outline every row on all four 
     inset 0 1px 0 rgba(255, 255, 255, 0.26),
     0 0 0 1px rgba(45, 212, 191, 0.12),
     0 8px 24px rgba(45, 212, 191, 0.14);
-  font: 600 var(--text-md) / 1 var(--font-sans);
+  font: 500 var(--text-md) / 1 var(--font-sans);
   transition:
     transform var(--dur-fast) var(--ease-out),
     filter var(--dur-fast) var(--ease-out),
@@ -320,6 +320,10 @@ Use one divider between meaningful groups. Do not outline every row on all four 
 
 Keep the teal shadow below 18% opacity. A stronger glow becomes decorative and competes with the timer.
 
+### Ghost action (capture bar Add button)
+
+Used for the Inbox capture bar submit. Transparent background, teal border and text (`--color-accent`), `font-weight: 500`. Subtle teal fill on hover. Class: `.btn-ghost`.
+
 ### Secondary and destructive actions
 
 ```css
@@ -331,6 +335,7 @@ Keep the teal shadow below 18% opacity. A stronger glow becomes decorative and c
   color: var(--color-text);
   background: rgba(255, 255, 255, 0.035);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  font-weight: 500;
 }
 
 .button-danger {
@@ -368,7 +373,7 @@ Keep the teal shadow below 18% opacity. A stronger glow becomes decorative and c
 
 Order from the sketch:
 
-1. Text app name at top. Use 15px, weight 650, letter spacing `-0.01em`.
+1. Text app name at top. Use `--text-md` (14px), weight 650, letter spacing `-0.01em`.
 2. Home.
 3. Today.
 4. Upcoming.
@@ -735,6 +740,10 @@ This is a reduced checkpoint flow reached from the timer close action.
 - Primary action: `End session`, restrained danger style.
 - Secondary action: `Keep working`.
 - Action buttons centered in the panel. Icons and labels are vertically centered inside each button.
+
+## 13. Session complete / break offer
+
+Shown after finishing a session. Full card centered on screen (flex column, align-items center). Content order: heading "Session complete", body text, break duration input, centered "Take Break" and "Done" buttons.
 
 Do not use `Confirm` as the button label. Name the irreversible outcome.
 
