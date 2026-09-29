@@ -52,12 +52,12 @@ async function submit() {
     <h2>Checkpoint</h2>
 
     <div class="form-group">
-      <label for="cp-outcome">Outcome <span style="color:#f87171">*</span></label>
+      <label for="cp-outcome">Outcome <span class="required-marker" aria-hidden="true">*</span></label>
       <textarea id="cp-outcome" v-model="outcome" rows="3" placeholder="What did you accomplish? ('No progress' is valid.)" />
     </div>
 
     <div class="form-group">
-      <label>Status <span style="color:#f87171">*</span></label>
+      <label>Status <span class="required-marker" aria-hidden="true">*</span></label>
       <div class="status-options">
         <label v-for="s in statuses" :key="s" class="status-option" :class="`status-option--${s}`">
           <input type="radio" v-model="status" :value="s" :name="`cp-status-${s}`" />
@@ -67,7 +67,7 @@ async function submit() {
     </div>
 
     <div v-if="needsNextAction" class="form-group">
-      <label for="cp-next-action">Next Action <span style="color:#f87171">*</span></label>
+      <label for="cp-next-action">Next Action <span class="required-marker" aria-hidden="true">*</span></label>
       <input id="cp-next-action" v-model="nextAction" type="text" placeholder="What is the next concrete step?" />
     </div>
 
@@ -78,7 +78,7 @@ async function submit() {
 
     <p v-if="error" role="alert" class="error">{{ error }}</p>
 
-    <div style="display:flex;gap:10px;margin-top:8px">
+    <div class="checkpoint-actions">
       <button type="button" class="btn-primary" :disabled="saving" @click="submit">
         {{ saving ? 'Saving…' : 'Save Checkpoint' }}
       </button>
