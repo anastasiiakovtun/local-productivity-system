@@ -20,6 +20,16 @@ beforeEach(() => {
 });
 
 describe('TodayView', () => {
+  it('row actions use icons, not text glyphs', async () => {
+    window.app.listTasks.mockResolvedValue({ status: 'success', data: makeTasks('Task A') });
+    const w = mount(TodayView);
+    await flushPromises();
+    for (const button of w.findAll('.task-row .btn-icon')) {
+      expect(button.text()).toBe('');
+      expect(button.find('svg').exists()).toBe(true);
+    }
+  });
+
   it('shows tasks from listTasks("today")', async () => {
     window.app.listTasks.mockResolvedValue({ status: 'success', data: makeTasks('Do laundry', 'Study') });
     const w = mount(TodayView);

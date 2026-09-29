@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { PhCalendarBlank } from '@phosphor-icons/vue';
+import { PhCalendarBlank, PhCheck, PhX, PhPlay } from '@phosphor-icons/vue';
 import IconContainer from '../components/IconContainer.vue';
 import { useTaskStore } from '../stores/tasks.js';
 
@@ -22,9 +22,9 @@ const filtered = () => taskStore.today.filter(t =>
       <li v-for="task in taskStore.today" :key="task.id" class="task-row">
         <span class="task-title">{{ task.title }}</span>
         <span v-if="task.project_label" class="task-project">[{{ task.project_label }}]</span>
-        <button type="button" class="btn-icon" aria-label="Complete" @click="taskStore.completeTask(task.id)">✓</button>
-        <button type="button" class="btn-icon btn-delete" aria-label="Delete" @click="taskStore.deleteTask(task.id)">✕</button>
-        <button type="button" class="btn-icon" aria-label="Focus" @click="emit('focus', task)">▶</button>
+        <button type="button" class="btn-icon" aria-label="Complete" @click="taskStore.completeTask(task.id)"><PhCheck :size="16" aria-hidden="true" /></button>
+        <button type="button" class="btn-icon btn-delete" aria-label="Delete" @click="taskStore.deleteTask(task.id)"><PhX :size="16" aria-hidden="true" /></button>
+        <button type="button" class="btn-icon" aria-label="Focus" @click="emit('focus', task)"><PhPlay :size="16" aria-hidden="true" /></button>
       </li>
     </ul>
     <div v-else class="empty-state">
