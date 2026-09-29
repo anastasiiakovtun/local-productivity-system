@@ -43,6 +43,8 @@ describe('HomeView', () => {
     await flushPromises();
     expect(wrapper.text()).toContain('Nothing to resume');
     expect(wrapper.find('.empty-state .icon-container').exists()).toBe(true);
+    const children = wrapper.find('.home-empty-card').element.children;
+    expect(children[children.length - 1].getAttribute('aria-label')).toBe('Go to Today');
     await wrapper.find('button[aria-label="Go to Today"]').trigger('click');
     expect(wrapper.emitted('go-today')).toHaveLength(1);
   });
