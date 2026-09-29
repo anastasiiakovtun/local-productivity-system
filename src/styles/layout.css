@@ -29,7 +29,7 @@
 .sidebar-collapsed { padding-inline: 8px; }
 
 .sidebar-logo {
-  font-size: 15px;
+  font-size: var(--text-md);
   font-weight: 650;
   letter-spacing: -0.01em;
   color: var(--color-text);
@@ -39,7 +39,7 @@
 .sidebar-collapsed .sidebar-logo {
   padding-inline: 0;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--text-sm);
 }
 
 .nav-list {

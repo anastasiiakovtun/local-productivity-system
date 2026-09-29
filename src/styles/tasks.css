@@ -285,7 +285,7 @@ button:focus-visible {
   border-radius: var(--radius-lg);
   background: linear-gradient(145deg, rgba(45, 212, 191, 0.12), rgba(45, 212, 191, 0.025));
 }
-.error { color: #f87171; font-size: var(--text-md); margin-top: var(--space-2); }
+.error { color: var(--color-error); font-size: var(--text-md); margin-top: var(--space-2); }
 
 /* ─── Search ──────────────────────────────────────────── */
 .search-bar {

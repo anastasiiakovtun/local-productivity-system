@@ -23,7 +23,7 @@
 
 .rp-field { margin-bottom: 14px; }
 .rp-label { font-size: var(--text-sm); color: var(--color-text-faint); margin-bottom: 4px; }
-.rp-value { font-size: 15px; color: var(--color-text); }
+.rp-value { font-size: var(--text-md); color: var(--color-text); }
 
 /* ─── Resume Packet v2 ─────────────────────────────────── */
 .rp-identity { display: flex; align-items: center; gap: var(--space-4); }
@@ -210,7 +210,7 @@
   border: 0.5px solid rgba(245,245,247,0.10);
   border-radius: var(--radius-sm);
   color: var(--color-text);
-  font-size: var(--text-base);
+  font-size: var(--text-md);
   padding: var(--space-3);
   resize: vertical;
   width: 100%;
@@ -218,7 +218,7 @@
 }
 .quick-abandon-input:focus {
   outline: none;
-  border-color: var(--color-teal);
+  border-color: var(--color-accent);
 }
 .quick-abandon-actions { display: flex; gap: var(--space-3); justify-content: center; }
 
@@ -341,8 +341,8 @@
   height: 48px;
 }
 .floating-timer-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-.floating-timer-title { font-size: 11px; color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.floating-time { font-size: 15px; font-weight: 600; color: var(--color-accent); letter-spacing: 0.05em; }
+.floating-timer-title { font-size: var(--text-xs); color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.floating-time { font-size: var(--text-lg); font-weight: 600; color: var(--color-accent); letter-spacing: 0.05em; }
 .floating-timer-controls { display: flex; gap: 4px; }
 .floating-icon-btn {
   background: none; border: none; color: var(--color-text-muted);

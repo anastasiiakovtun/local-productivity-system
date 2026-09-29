@@ -18,6 +18,7 @@
   --color-blocked: #f59e0b;
   --color-abandoned: #ef4444;
   --color-completed: #22c55e;
+  --color-error: #f87171;
 
   /* Lines */
   --line-subtle: rgba(245, 245, 247, 0.06);

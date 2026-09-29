@@ -149,7 +149,7 @@
 .status-option span:hover { color: var(--color-text); }
 
 /* Required field asterisk */
-.required-marker { color: var(--color-error, #f87171); margin-left: 2px; }
+.required-marker { color: var(--color-error); margin-left: 2px; }
 
 /* Checkpoint action row */
 .checkpoint-actions { display: flex; gap: 10px; margin-top: var(--space-2); }
