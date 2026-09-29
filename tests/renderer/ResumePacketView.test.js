@@ -68,10 +68,43 @@ describe('ResumePacketView', () => {
     expect(buttonTexts).not.toMatch(/\bCancel\b/);
   });
 
-  it('duration input is in the header area', async () => {
+  it('duration input sits next to the Start Session button', async () => {
     const w = mount(ResumePacketView, { props: { task }, global: { stubs } });
     await flushPromises();
-    expect(w.find('.rp-header-row #duration-input').exists()).toBe(true);
+    expect(w.find('.rp-header-row #duration-input').exists()).toBe(false);
+    expect(w.find('.rp-start-row #duration-input').exists()).toBe(true);
+    expect(w.find('.rp-start-row .rp-start-btn').exists()).toBe(true);
+  });
+
+  it('Edit buttons sit inline with their section content', async () => {
+    const w = mount(ResumePacketView, { props: { task: { ...task, next_action: 'Outline', supporting_notes: 'A' } }, global: { stubs } });
+    await flushPromises();
+    expect(w.find('.rp-inline-row [aria-label="Edit next action"]').exists()).toBe(true);
+    expect(w.find('.rp-inline-row [data-action="edit-notes"]').exists()).toBe(true);
+  });
+
+  it('Start Session uses an icon, not a text glyph', async () => {
+    const w = mount(ResumePacketView, {
+      props: { task },
+      global: { stubs: { ...stubs, PhPlay: { template: '<span class="ph-play-stub"/>' } } },
+    });
+    await flushPromises();
+    expect(w.find('.rp-start-btn').text()).not.toContain('▶');
+    expect(w.find('.rp-start-btn .ph-play-stub').exists()).toBe(true);
+  });
+
+  it('edit mode uses the standard 16px button icons', async () => {
+    const sized = { props: ['size'], template: '<span class="ph-icon" :data-size="size"/>' };
+    const w = mount(ResumePacketView, {
+      props: { task },
+      global: { stubs: { ...stubs, PhX: sized, PhFloppyDisk: sized, PhPencil: sized } },
+    });
+    await flushPromises();
+    for (const icon of w.findAll('.rp-edit-btn .ph-icon')) expect(icon.attributes('data-size')).toBe('16');
+    await w.find('[data-action="edit-notes"]').trigger('click');
+    const icons = w.findAll('.rp-notes-actions .ph-icon');
+    expect(icons.length).toBe(2);
+    for (const icon of icons) expect(icon.attributes('data-size')).toBe('16');
   });
 
   it('renders inside the shared centered workflow card', async () => {

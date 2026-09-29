@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { PhPencil, PhX, PhFloppyDisk } from '@phosphor-icons/vue';
+import { PhPencil, PhX, PhFloppyDisk, PhPlay } from '@phosphor-icons/vue';
 import { useSessionStore } from '../stores/session.js';
 import ProjectCover from '../components/ProjectCover.vue';
 import ResumeSection from '../components/ResumeSection.vue';
@@ -72,7 +72,7 @@ async function saveNotes() {
 <template>
   <div class="resume-packet workflow-card">
 
-    <!-- Header: project + title (left) | duration input (right) | close X (top-right) -->
+    <!-- Header: project + title (left) | close X (top-right) -->
     <div class="rp-header-row">
       <div class="rp-identity">
         <ProjectCover :project-label="task.project_label" :color="null" :size="40" />
@@ -82,29 +82,15 @@ async function saveNotes() {
         </div>
       </div>
 
-      <div class="rp-header-right">
-        <label class="rp-duration-label" for="duration-input">
-          <input
-            id="duration-input"
-            v-model.number="plannedMinutes"
-            class="duration-input rp-duration-input"
-            type="number"
-            min="1"
-            max="180"
-            :disabled="loadingPrefs"
-          />
-          <span class="rp-duration-unit">min</span>
-        </label>
-        <button
-          type="button"
-          class="timer-icon-btn"
-          data-action="close"
-          aria-label="Close"
-          @click="emit('cancel')"
-        >
-          <PhX :size="16" />
-        </button>
-      </div>
+      <button
+        type="button"
+        class="timer-icon-btn"
+        data-action="close"
+        aria-label="Close"
+        @click="emit('cancel')"
+      >
+        <PhX :size="16" />
+      </button>
     </div>
 
     <!-- Previous checkpoint -->
@@ -130,20 +116,20 @@ async function saveNotes() {
         <p v-if="nextActionError" class="rp-notes-error" role="alert">{{ nextActionError }}</p>
         <div class="rp-notes-actions">
           <button type="button" class="btn-secondary rp-notes-btn" data-action="cancel-next-action" @click="cancelNextAction">
-            <PhX :size="13" /> Cancel
+            <PhX :size="16" /> Cancel
           </button>
           <button type="button" class="btn-primary rp-notes-btn" :disabled="nextActionSaving" @click="saveNextAction">
-            <PhFloppyDisk :size="13" /> Save
+            <PhFloppyDisk :size="16" /> Save
           </button>
         </div>
       </template>
-      <template v-else>
+      <div v-else class="rp-inline-row">
         <p v-if="nextActionDisplay" class="rp-notes-display">{{ nextActionDisplay }}</p>
         <p v-else class="rp-muted">No next action recorded.</p>
         <button type="button" class="rp-edit-btn" aria-label="Edit next action" @click="editNextAction">
-          <PhPencil :size="13" /> Edit
+          <PhPencil :size="16" /> Edit
         </button>
-      </template>
+      </div>
     </ResumeSection>
 
     <!-- Supporting Notes — inline edit -->
@@ -159,22 +145,22 @@ async function saveNotes() {
         <p v-if="notesError" class="rp-notes-error" role="alert">{{ notesError }}</p>
         <div class="rp-notes-actions">
           <button type="button" class="btn-secondary rp-notes-btn" data-action="cancel-notes" @click="cancelNotes">
-            <PhX :size="13" /> Cancel
+            <PhX :size="16" /> Cancel
           </button>
           <button type="button" class="btn-primary rp-notes-btn" data-action="save-notes" :disabled="notesSaving" @click="saveNotes">
-            <PhFloppyDisk :size="13" /> Save
+            <PhFloppyDisk :size="16" /> Save
           </button>
         </div>
       </template>
-      <template v-else>
+      <div v-else class="rp-inline-row">
         <ul v-if="notesDisplay" class="rp-notes-list">
           <li v-for="(line, i) in notesDisplay.split('\n').filter(l => l.trim())" :key="i">{{ line }}</li>
         </ul>
         <p v-else class="rp-muted">No notes yet.</p>
         <button type="button" class="rp-edit-btn" data-action="edit-notes" aria-label="Edit notes" @click="editNotes">
-          <PhPencil :size="13" /> Edit
+          <PhPencil :size="16" /> Edit
         </button>
-      </template>
+      </div>
     </ResumeSection>
 
     <!-- Blocker — always-visible editable input -->
@@ -193,9 +179,23 @@ async function saveNotes() {
       />
     </ResumeSection>
 
-    <!-- Start button centered alone -->
+    <!-- Duration + Start Session, centered together -->
     <div class="rp-start-row">
-      <button type="button" class="btn-primary rp-start-btn" @click="start">▶ Start Session</button>
+      <label class="rp-duration-label" for="duration-input">
+        <input
+          id="duration-input"
+          v-model.number="plannedMinutes"
+          class="duration-input rp-duration-input"
+          type="number"
+          min="1"
+          max="180"
+          :disabled="loadingPrefs"
+        />
+        <span class="rp-duration-unit">min</span>
+      </label>
+      <button type="button" class="btn-primary rp-start-btn" @click="start">
+        <PhPlay :size="16" weight="fill" aria-hidden="true" /> Start Session
+      </button>
     </div>
   </div>
 </template>
